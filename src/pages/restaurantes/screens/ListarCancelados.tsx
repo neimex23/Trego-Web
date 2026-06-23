@@ -21,7 +21,7 @@ export default function ListarCancelados() {
 
   // Obtener pedidos con estado "Solicitado"
   const { pedidos, loading, error, recargar } = usePedidos(
-    EnumEstadoPedido.Cancelado,
+    EnumEstadoPedido.Reembolsado,
     1000,
   );
 

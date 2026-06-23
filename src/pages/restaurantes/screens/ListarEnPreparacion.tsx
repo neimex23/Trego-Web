@@ -150,7 +150,7 @@ export default function ListarEnPreparacion() {
           listaFiltros={productos}
           mapToItem={(i) => ({
                 id: i?.toString() ?? "",
-                label: i.nombre,
+                label: i.nombre ?? "",
               })}
           orden={orden}
           setOrden={setOrden}
