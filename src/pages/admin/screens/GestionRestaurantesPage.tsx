@@ -3,6 +3,7 @@ import type { DTORestaurante } from "../../../data/DTORestaurante.js";
 import type { DTODireccion } from "../../../data/DTODireccion.js";
 import { administradorApi } from "../../../api/administradorApi.js";
 import EmptyState from "../../../components/EmptyState.jsx";
+import AdminPageShell, { AdminPageHeader } from "../components/AdminPageShell.js";
 
 type VistaModal = "detalle" | "rechazar";
 
@@ -138,13 +139,13 @@ export default function GestionRestaurantesPage() {
 
   return (
 <>
-  <div className="mx-auto w-5xl px-4 py-8 sm:px-6">
-    <div className="mb-8">
-      <h1 className="text-3xl text-center font-bold text-gray-900">Solicitudes de alta</h1>
-      <p className="mt-2 text-center text-gray-500">
-        Revisá y aprobá los restaurantes pendientes de habilitación.
-      </p>
-    </div>
+  <AdminPageShell>
+  <div className="mx-auto w-full max-w-5xl">
+    <AdminPageHeader
+      titulo="Solicitudes de alta"
+      descripcion="Revisá y aprobá los restaurantes pendientes de habilitación."
+      centrado
+    />
 
     {mensajeExito && (
       <div className="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 shadow-sm">
@@ -169,7 +170,7 @@ export default function GestionRestaurantesPage() {
         onLimpiarFiltros={undefined}
       />
     ) : (
-      <ul className="grid gap-4 m-auto bg-white p-5 sm:grid-cols-2">
+      <ul className="grid gap-3 sm:gap-4 sm:grid-cols-2">
         {restaurantes.map((restaurante) => (
           <li key={restaurante.idRestaurante}>
             <button
@@ -180,9 +181,9 @@ export default function GestionRestaurantesPage() {
                 setMotivo("");
                 setError(null);
               }}
-              className="group w-full gap-5 rounded-2xl border flex border-gray-300 bg-white p-5 text-left shadow-sm transition-all duration-200 hover:border-orange-300 hover:shadow-md hover:shadow-orange-100"
+              className="group w-full gap-3 sm:gap-5 rounded-2xl border flex flex-col border-gray-300 bg-white p-4 sm:p-5 text-left shadow-sm transition-all duration-200 hover:border-orange-300 hover:shadow-md hover:shadow-orange-100"
             >
-              <p className="truncate text-lg font-semibold text-gray-900 group-hover:text-orange-600">
+              <p className="truncate text-base sm:text-lg font-semibold text-gray-900 group-hover:text-orange-600">
                 Restaurante: {restaurante.nombre} 
               </p>
               {restaurante.categoria && (
@@ -196,6 +197,7 @@ export default function GestionRestaurantesPage() {
       </ul>
     )}
   </div>
+  </AdminPageShell>
 
   {seleccionado && (
     <div
@@ -209,7 +211,7 @@ export default function GestionRestaurantesPage() {
         role="dialog"
         aria-modal="true"
         aria-label={`Detalle de ${seleccionado.nombre}`}
-        className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-xl transition-all duration-200"
+        className="max-h-[90dvh] w-full max-w-2xl overflow-hidden rounded-t-2xl sm:rounded-2xl bg-white shadow-xl transition-all duration-200"
         onMouseDown={(e) => e.stopPropagation()}
       >
         {seleccionado.fotoPortada && (
@@ -222,10 +224,10 @@ export default function GestionRestaurantesPage() {
           </div>
         )}
 
-        <div className="max-h-[calc(90vh-12rem)] overflow-y-auto p-6">
-          <div className="mb-6 flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+        <div className="max-h-[calc(90dvh-12rem)] overflow-y-auto p-4 sm:p-6">
+          <div className="mb-4 sm:mb-6 flex items-start justify-between gap-3 sm:gap-4">
+            <div className="min-w-0">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">
                 {seleccionado.nombre}
               </h2>
             </div>

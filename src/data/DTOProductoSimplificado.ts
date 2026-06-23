@@ -8,4 +8,5 @@ export interface DTOProductoSimplificado {
   urlImagen?: string;
   oferta?: DTOOferta;
   tiempoPreparacion?: number;
+  cantidadVendida?: number;
 }

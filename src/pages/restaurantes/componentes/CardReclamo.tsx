@@ -186,7 +186,7 @@ export function CardReclamo({ reclamo, onResolver }: CardReclamoProps) {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 flex items-center gap-2">
               <ShoppingBag size={15} className="text-gray-400 shrink-0" />
               <div>
@@ -283,7 +283,7 @@ export function CardReclamo({ reclamo, onResolver }: CardReclamoProps) {
           )}
 
           {modo === null && (
-            <div className="flex flex-wrap gap-3 justify-end">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:justify-end">
               <button
                 type="button"
                 onClick={() => {
@@ -318,7 +318,7 @@ export function CardReclamo({ reclamo, onResolver }: CardReclamoProps) {
                 <strong>{montoFormateado}</strong> al cliente. Se le notificará
                 por email y en la app.
               </p>
-              <div className="flex flex-wrap gap-3 justify-end">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:justify-end">
                 <button
                   type="button"
                   onClick={() => setModo(null)}
@@ -361,7 +361,7 @@ export function CardReclamo({ reclamo, onResolver }: CardReclamoProps) {
                   className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
                 />
               </label>
-              <div className="flex flex-wrap gap-3 justify-end">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:justify-end">
                 <button
                   type="button"
                   onClick={() => {

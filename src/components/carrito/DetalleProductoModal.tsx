@@ -35,9 +35,6 @@ export default function DetalleProductoModal(): React.JSX.Element {
   const [cantidad, setCantidad] = useState<number>(1);
   const [comentarios, setComentarios] = useState<string>("");
   const [quitados, setQuitados] = useState<string[]>([]);
-  const [errorIngredientes, setErrorIngredientes] = useState<string | null>(
-    null,
-  );
   const [agregando, setAgregando] = useState(false);
 
   const ingredientes = useMemo(() => obtenerIngredientes(producto), [producto]);
@@ -46,44 +43,29 @@ export default function DetalleProductoModal(): React.JSX.Element {
 
   useEffect(() => {
     setQuitados([]);
-    setErrorIngredientes(null);
     setCantidad(1);
     setComentarios("");
     setAgregando(false);
     setMensajeCarrito(null);
   }, [producto?.idProducto, setMensajeCarrito]);
 
-  const MSG_TODOS_INGREDIENTES =
-    "No podés quitar todos los ingredientes. Dejá al menos uno en el plato.";
-
   function toggleQuitado(nombre: string): void {
-    if (quitados.includes(nombre)) {
-      setQuitados((prev) => prev.filter((x) => x !== nombre));
-      setErrorIngredientes(null);
-      return;
-    }
-    if (ingredientes.length > 0 && quitados.length + 1 >= ingredientes.length) {
-      setErrorIngredientes(MSG_TODOS_INGREDIENTES);
-      return;
-    }
-    setQuitados((prev) => [...prev, nombre]);
-    setErrorIngredientes(null);
+    setQuitados((prev) =>
+      prev.includes(nombre)
+        ? prev.filter((x) => x !== nombre)
+        : [...prev, nombre],
+    );
   }
 
   function cerrar(): void {
     setCantidad(1);
     setComentarios("");
     setQuitados([]);
-    setErrorIngredientes(null);
     cerrarDetalleProducto();
   }
 
   async function agregar(): Promise<void> {
     if (!producto || agregando) return;
-    if (ingredientes.length > 0 && quitados.length >= ingredientes.length) {
-      setErrorIngredientes(MSG_TODOS_INGREDIENTES);
-      return;
-    }
 
     const idRestauranteActual =
       producto.idRestaurante ||
@@ -202,12 +184,6 @@ export default function DetalleProductoModal(): React.JSX.Element {
               ) : (
                 <p className="mt-1 text-[12px] text-gray-400">
                   Tocá los que no querés en tu plato.
-                </p>
-              )}
-
-              {errorIngredientes && (
-                <p className="mt-2 rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-[12px] font-bold text-orange-800">
-                  {errorIngredientes}
                 </p>
               )}
 

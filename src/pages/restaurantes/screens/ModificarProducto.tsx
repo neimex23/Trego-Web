@@ -412,7 +412,7 @@ export default function ModificarProducto({
 
   return (
     <>
-      <div className="w-full max-w-5xl mx-auto px-10 py-8 min-h-screen bg-gray-75">
+      <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 md:px-10 py-6 sm:py-8 min-h-full bg-gray-75">
         <div className="flex items-center justify-between mb-2 py-4 border-b border-gray-100">
           <button
             type="button"

@@ -46,6 +46,27 @@ export async function clienteYaComentoEnRestaurante(idRestaurante) {
 }
 
 /**
+ * Comentarios del restaurante autenticado (sin pasar id).
+ * @returns {Promise<import('../data/DTOComentario.ts').DTOComentario[]>}
+ */
+export async function listarMisComentariosRestaurante() {
+  const response = await fetchConAuth(ENDPOINTS.COMENTARIOS_LISTAR, {
+    redirectOnUnauthorized: false,
+  })
+
+  if (response.status === 401 || response.status === 403) {
+    throw new Error('SIN_SESION')
+  }
+  if (!response.ok) {
+    const msg = await leerMensajeError(response)
+    throw new Error(msg || 'No se pudieron cargar las reseñas')
+  }
+
+  const data = await response.json()
+  return Array.isArray(data) ? data : []
+}
+
+/**
  * @param {number|string} idRestaurante
  * @returns {Promise<import('../data/DTOComentario.ts').DTOComentario[]>}
  */

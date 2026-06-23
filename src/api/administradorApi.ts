@@ -74,6 +74,27 @@ export const administradorApi = {
     }
   },
 
+  cambiarEstadoUsuario: async (
+    idUsuario: number,
+    habilitar: boolean,
+    motivo?: string,
+  ): Promise<void> => {
+    let url = ENDPOINTS.ADMIN_USUARIO_HABILITAR_DESHABILITAR.replace(
+      ":id",
+      String(idUsuario),
+    ).replace(":habilitar", String(habilitar));
+
+    if (!habilitar && motivo?.trim()) {
+      url += `?motivo=${encodeURIComponent(motivo.trim())}`;
+    }
+
+    const response = await fetchConAuth(url, { method: "POST" });
+
+    if (!response.ok) {
+      throw new Error("ERROR_CAMBIAR_ESTADO");
+    }
+  },
+
   crearAdministrador: async (datos: {
     nombre: string;
     email: string;

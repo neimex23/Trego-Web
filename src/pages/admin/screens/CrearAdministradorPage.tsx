@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TextInput } from "../../../components/TextInput.js";
 import { administradorApi } from "../../../api/administradorApi.js";
 import { esEmailValido } from "../../../utils/validarEmail.js";
+import AdminPageShell, { AdminPageHeader } from "../components/AdminPageShell.js";
 
 export default function CrearAdministradorPage() {
   const [nombre, setNombre] = useState("");
@@ -62,14 +63,13 @@ export default function CrearAdministradorPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-xl px-4 py-8 sm:px-6">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900">Crear administrador</h1>
-        <p className="mt-2 text-gray-500">
-          Generá una cuenta de administrador. El sistema enviará las credenciales
-          de acceso al correo indicado.
-        </p>
-      </div>
+    <AdminPageShell>
+    <div className="mx-auto w-full max-w-xl">
+      <AdminPageHeader
+        titulo="Crear administrador"
+        descripcion="Generá una cuenta de administrador. El sistema enviará las credenciales de acceso al correo indicado."
+        centrado
+      />
 
       {mensajeExito && (
         <div className="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 shadow-sm">
@@ -85,7 +85,7 @@ export default function CrearAdministradorPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8"
+        className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 md:p-8 shadow-sm"
       >
         <div className="space-y-5">
           <TextInput
@@ -123,5 +123,6 @@ export default function CrearAdministradorPage() {
         </button>
       </form>
     </div>
+    </AdminPageShell>
   );
 }

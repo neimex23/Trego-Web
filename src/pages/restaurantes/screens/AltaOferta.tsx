@@ -265,13 +265,13 @@ export default function AltaOferta({
   const isUploading = foto.uploadState === "uploading";
 
   return (
-    <div className="bg-white w-5xl mx-auto rounded-3xl p-2 flex flex-col gap-6">
-      <div className="relative py-5 flex justify-center items-center">
+    <div className="bg-white w-full max-w-5xl mx-auto rounded-3xl p-3 sm:p-4 flex flex-col gap-6">
+      <div className="relative py-3 sm:py-5 flex flex-col sm:flex-row sm:justify-center sm:items-center gap-3 sm:gap-0">
         {/* Botón Izquierda */}
         <button
           type="button"
           onClick={onCancelar}
-          className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-2 text-gray-600 hover:text-trego-restaurante transition-colors"
+          className="sm:absolute sm:left-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center gap-2 text-gray-600 hover:text-trego-restaurante transition-colors self-start"
         >
           <svg
             className="w-5 h-5"
@@ -290,21 +290,21 @@ export default function AltaOferta({
         </button>
 
         {/* Texto Centro */}
-        <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight text-center">
           {oferta ? "Modificar oferta" : "Nueva oferta"}
         </h2>
 
         {/* Botón Derecha */}
         {oferta && (
-          <div className="absolute right-0 top-1/2 -translate-y-1/2">
+          <div className="sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2 self-end sm:self-auto">
             <ToggleActivar value={habilitar} onChange={handleToggleHabilitar} />
           </div>
         )}
       </div>
-      <h2 className="text-center font-semibold text-trego-restaurante text-3xl pb-5">{`${producto?.tipo ?? "Producto"} - ${producto?.nombre ?? "Sin Nombre"}`}</h2>
+      <h2 className="text-center font-semibold text-trego-restaurante text-xl sm:text-3xl pb-5 px-2">{`${producto?.tipo ?? "Producto"} - ${producto?.nombre ?? "Sin Nombre"}`}</h2>
 
       <div className="flex flex-col md:flex-row gap-6 items-start">
-        <div className="flex flex-col px-15 items-center gap-1 shrink-0">
+        <div className="flex flex-col w-full md:w-auto items-center gap-1 shrink-0">
           <ImageUploadField
             label="Imagen Oferta"
             imageField={foto}
@@ -317,8 +317,8 @@ export default function AltaOferta({
           )}
         </div>
 
-        <div className="flex flex-col px-15 gap-8 flex-1 min-w-0">
-          <div className="flex gap-4">
+        <div className="flex flex-col gap-8 flex-1 min-w-0 w-full">
+          <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex flex-col gap-1 flex-1">
               <span className="text-sm font-medium text-gray-700">Desde</span>
               <input
@@ -390,7 +390,7 @@ export default function AltaOferta({
         </div>
       </div>
 
-      <div className="flex flex-col px-30 gap-1">
+      <div className="flex flex-col gap-1">
         <span className="text-sm font-semibold text-gray-700 px-1">
           Descripción
         </span>
@@ -412,7 +412,7 @@ export default function AltaOferta({
       </div>
 
       {notificacion && (
-        <div className="px-30 transition-all duration-300">
+        <div className="transition-all duration-300">
           <div
             className={`p-3 rounded-2xl text-center text-sm font-medium border ${
               notificacion.tipo === "exito"
@@ -425,7 +425,7 @@ export default function AltaOferta({
         </div>
       )}
 
-      <div className="flex w-full m-auto gap-3 pt-2 px-30 pb-5">
+      <div className="flex flex-col sm:flex-row w-full m-auto gap-3 pt-2 pb-5">
         <button
           type="button"
           onClick={handleCrear}

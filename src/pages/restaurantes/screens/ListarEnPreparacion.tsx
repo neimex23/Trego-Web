@@ -5,7 +5,7 @@ import {
   reembolsarPedido,
 } from "../../../api/apiRestaurante.js";
 import { EnumEstadoPedido } from "../../../data/EnumEstadoPedido.js";
-import { AlertCircle, CheckCircle, RefreshCw, Search } from "lucide-react";
+import { AlertCircle, CheckCircle } from "lucide-react";
 import CardPedidoAconfirmar from "../componentes/CardPedidoAconfirmar.js";
 import type { DTOPedido } from "../../../data/DTOPedido.js";
 import { usePedidos } from "../../../hooks/usePedidoRestaurante.js";
@@ -13,6 +13,10 @@ import { useFiltrosPedidos } from "../../../hooks/useFiltrosPedidos.js";
 import type { DTOProducto } from "../../../data/DTOProducto.js";
 import { useProductoRestaurante } from "../../../hooks/useProductoRestaurante.js";
 import FiltrosRestaurantes from "../componentes/FiltrosResto.js";
+import {
+  RESTAURANTE_PAGE_CLASS,
+  RestaurantePageHeader,
+} from "../componentes/RestaurantePageShell.js";
 
 export default function ListarEnPreparacion() {
   const [notification, setNotification] = useState<NotificationState>({
@@ -100,7 +104,7 @@ export default function ListarEnPreparacion() {
   };
 
   return (
-    <div className="flex-1 w-full h-full p-4 md:p-8 overflow-y-auto bg-gray-50 text-gray-800 font-sans">
+    <div className={RESTAURANTE_PAGE_CLASS}>
       {notification.show && (
         <div
           className={`mb-4 p-4 rounded-xl flex items-center shadow-sm ${
@@ -118,25 +122,13 @@ export default function ListarEnPreparacion() {
         </div>
       )}
 
-      <div className="flex w-full justify-between">
-        <div></div>
-        <h1 className="text-2xl font-black text-gray-800 text-center mb-6 uppercase tracking-tight">
-          Pedidos en preparacion
-        </h1>
-        <button
-          type="button"
-          onClick={recargar}
-          disabled={loading} 
-          className={`shrink-0 flex items-center justify-center w-8 h-8 
-              text-trego-restaurante hover:opacity-80 transition-colors
-              ${loading ? "animate-spin opacity-60 cursor-wait" : ""}`}
-          aria-label="Recargar"
-        >
-          <RefreshCw size={32} />
-        </button>
-      </div>
+      <RestaurantePageHeader
+        titulo="Pedidos en preparacion"
+        onRecargar={recargar}
+        recargando={loading}
+      />
 
-      <div className="max-w-5xl mx-auto mb-8 relative group">
+      <div className="max-w-5xl mx-auto mb-6 sm:mb-8 relative group">
         <FiltrosRestaurantes
           labelBuscador="Buscar por Nombre o ID"
           nombreID={searchTerm}

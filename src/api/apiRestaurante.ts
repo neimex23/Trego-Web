@@ -1,4 +1,5 @@
 import type { DTOAbrirCerrarLocalRequest } from "../data/DTOAbrirCerrarLocalRequest.js";
+import type { DTOEstadisticas } from "../data/DTOEstadisticas.js";
 import type { DTOFirma } from "../data/DTOFirma.js";
 import type { DTOIngrediente } from "../data/DTOIngrediente.js";
 import type { DTOModificarOfertaRequest } from "../data/DTOModificarOfertaRequest.js";
@@ -7,7 +8,7 @@ import type { DTOPedido } from "../data/DTOPedido.js";
 import type { DTOProducto } from "../data/DTOProducto.js";
 import type { DTORestaurante } from "../data/DTORestaurante.js";
 import type { DTOSubcategoria } from "../data/DTOSubcategoria.js";
-import type { EnumEstadoPedido } from "../data/EnumEstadoPedido.js";
+import { EnumEstadoPedido } from "../data/EnumEstadoPedido.js";
 import { ENDPOINTS } from "./endpoints.js";
 import { fetchConAuth } from "./header/fetchConAuth.js";
 
@@ -267,6 +268,28 @@ export async function listarPedidos(
   }
 
   return response.json();
+}
+
+/** Une pedidos de todos los estados del restaurante autenticado. */
+export async function listarTodosPedidosRestaurante(): Promise<DTOPedido[]> {
+  const estados = Object.values(EnumEstadoPedido).filter(
+    (valor): valor is EnumEstadoPedido => typeof valor === "string",
+  );
+
+  const listas = await Promise.all(
+    estados.map((estado) => listarPedidos({ estado })),
+  );
+
+  const porId = new Map<number, DTOPedido>();
+  for (const pedidos of listas) {
+    for (const pedido of pedidos) {
+      if (pedido.idPedido != null) {
+        porId.set(pedido.idPedido, pedido);
+      }
+    }
+  }
+
+  return [...porId.values()];
 }
 
 /**
@@ -564,6 +587,45 @@ export async function crearOferta(
 
   const data: DTOOferta = await response.json();
   return data;
+}
+
+/**
+ * Obtiene estadísticas del restaurante autenticado en un rango de fechas.
+ */
+export async function obtenerEstadisticas(
+  fechaInicio: string,
+  fechaFin: string,
+): Promise<DTOEstadisticas> {
+  const response = await fetchConAuth(ENDPOINTS.RESTAURANTE_ESTADISTICAS, {
+    method: "POST",
+    body: JSON.stringify({ fechaInicio, fechaFin }),
+  });
+
+  if (!response.ok) {
+    let mensaje = `Error ${response.status}`;
+    try {
+      const errorData = await response.json();
+      mensaje =
+        errorData.message || errorData.error || JSON.stringify(errorData);
+    } catch {
+      mensaje = await response.text().catch(() => "Error desconocido");
+    }
+
+    if (response.status === 400) {
+      throw new Error(
+        mensaje || "Se requieren ambas fechas para filtrar estadísticas.",
+      );
+    }
+    if (response.status === 403) {
+      throw new Error(
+        mensaje || "Solo los restaurantes pueden obtener estadísticas.",
+      );
+    }
+
+    throw new Error(mensaje || "Error al obtener las estadísticas.");
+  }
+
+  return response.json();
 }
 
 /**

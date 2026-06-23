@@ -69,6 +69,7 @@ export const ENDPOINTS = {
   CERRAR_LOCAL: `/api/restaurantes/cerrarLocal`,
   ACTUALIZAR_CIERRE: `/api/restaurantes/actualizarCierre`,
   CREAR_OFERTA: "/api/restaurantes/ofertas/crear",
+  RESTAURANTE_ESTADISTICAS: "/api/restaurantes/estadisticas",
   ACTIVAR_DESACTIVAR_OFERTA: "/api/restaurantes/ofertas/desactivar",
 
   //Registro
@@ -86,6 +87,10 @@ export const ENDPOINTS = {
 
   // Administrador — clientes
   CLIENTES_TODOS: '/api/clientes',
+
+  // Administrador — activación / desactivación de cuentas
+  ADMIN_USUARIO_HABILITAR_DESHABILITAR:
+    '/api/administradores/HabilitarDeshabilitar/:id/:habilitar',
 
   // Administrador — alta de administradores
   ADMIN_CREAR_ADMINISTRADOR: '/api/administradores/CrearAdministrador',

@@ -26,3 +26,6 @@ dist-ssr
 
 # Variables de entorno
 .env
+
+# Seeds locales de desarrollo (no versionar)
+scripts/seed-casos-cliente.sql

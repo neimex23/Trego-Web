@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle, RefreshCw } from "lucide-react";
+import { AlertCircle, CheckCircle } from "lucide-react";
 import FiltrosRestaurantes from "../componentes/FiltrosResto.js";
 import { CardReclamo, type Reclamo } from "../componentes/CardReclamo.js";
 import type { NotificationState } from "../types/NotificationState.js";
@@ -11,6 +11,10 @@ import type {
 } from "../../../data/DTOReclamo.js";
 import { EnumEstadoReclamo } from "../../../data/EnumEstadoReclamo.js";
 import type { SearchItem } from "../../../components/TextBuscador.js";
+import {
+  RESTAURANTE_PAGE_CLASS,
+  RestaurantePageHeader,
+} from "../componentes/RestaurantePageShell.js";
 
 function mapDtoACard(dto: DTOReclamo): Reclamo {
   const estado =
@@ -108,7 +112,7 @@ export default function ListarReclamos() {
   };
 
   return (
-    <div className="flex-1 w-full h-full p-4 md:p-8 overflow-y-auto bg-gray-50 text-gray-800 font-sans">
+    <div className={RESTAURANTE_PAGE_CLASS}>
       {notification.show && (
         <div
           className={`mb-4 p-4 rounded-xl flex items-center shadow-sm ${
@@ -126,25 +130,13 @@ export default function ListarReclamos() {
         </div>
       )}
 
-      <div className="flex w-full justify-between">
-        <div></div>
-        <h1 className="text-2xl font-black text-gray-800 text-center mb-6 uppercase tracking-tight">
-          Reclamos de pedidos
-        </h1>
-        <button
-          type="button"
-          onClick={recargar}
-          disabled={loading} 
-          className={`shrink-0 flex items-center justify-center w-8 h-8 
-              text-trego-restaurante hover:opacity-80 transition-colors
-              ${loading ? "animate-spin opacity-60 cursor-wait" : ""}`}
-          aria-label="Recargar"
-        >
-          <RefreshCw size={32} />
-        </button>
-      </div>
+      <RestaurantePageHeader
+        titulo="Reclamos de pedidos"
+        onRecargar={recargar}
+        recargando={loading}
+      />
 
-      <div className="max-w-5xl mx-auto mb-8">
+      <div className="max-w-5xl mx-auto mb-6 sm:mb-8">
         <FiltrosRestaurantes<EnumEstadoReclamo>
           labelBuscador="Buscar por nombre o ID de pedido"
           nombreID={searchTerm}

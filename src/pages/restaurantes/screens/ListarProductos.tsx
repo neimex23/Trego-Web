@@ -9,6 +9,10 @@ import { useIngredientes } from "../../../hooks/useIngredientes.js";
 import ProductoCard from "../componentes/CardProducto.js";
 import type { DTOProducto } from "../../../data/DTOProducto.js";
 import ModificarProducto from "./ModificarProducto.js";
+import {
+  RESTAURANTE_PAGE_CLASS,
+  RestaurantePageHeader,
+} from "../componentes/RestaurantePageShell.js";
 
 export default function ListarProductos() {
   const [notification, setNotification] = useState<NotificationState>({
@@ -74,7 +78,7 @@ export default function ListarProductos() {
   }
 
   return (
-    <div className="flex-1 w-full h-full p-4 md:p-8 overflow-y-auto bg-gray-75 text-gray-800 font-sans">
+    <div className={RESTAURANTE_PAGE_CLASS}>
       {notification.show && (
         <div
           className={`mb-4 p-4 rounded-xl flex items-center shadow-sm ${
@@ -92,11 +96,9 @@ export default function ListarProductos() {
         </div>
       )}
 
-      <h1 className="text-2xl font-black text-gray-800 text-center mb-6 uppercase tracking-tight">
-        Mis Productos
-      </h1>
+      <RestaurantePageHeader titulo="Mis Productos" />
 
-      <div className="max-w-5xl mx-auto mb-8 relative group">
+      <div className="max-w-5xl mx-auto mb-6 sm:mb-8 relative group">
         <FiltrosRestaurantes
           labelBuscador="Buscar por Nombre o ID"
           nombreID={searchTerm}

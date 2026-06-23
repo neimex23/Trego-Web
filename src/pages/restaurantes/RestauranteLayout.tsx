@@ -52,6 +52,10 @@ const SECCIONES: SidebarSection[] = [
       },
       { label: "Pedidos por fecha", path: "/restaurantes/estadisticas/fechas" },
       { label: "Monto promedio", path: "/restaurantes/estadisticas/monto" },
+      {
+        label: "Clasificación global",
+        path: "/restaurantes/reputacion",
+      },
     ],
   },
 ];
@@ -89,6 +93,7 @@ export default function RestauranteLayout() {
   const [perfilNombre, setPerfilNombre] = useState("Restaurante");
   const [perfilEmail, setPerfilEmail] = useState("");
   const [fotoPerfil, setFotoPerfil] = useState<string | undefined>(undefined);
+  const [menuNavegacionAbierto, setMenuNavegacionAbierto] = useState(false);
 
   // --- REGLAS DE SEGURIDAD ---
 
@@ -307,12 +312,17 @@ export default function RestauranteLayout() {
     setAvisoDescartado(false);
   }, [restauranteAbierto, horaCierre]);
 
+  useEffect(() => {
+    setMenuNavegacionAbierto(false);
+  }, [location.pathname]);
+
   // Si pasa todas las reglas, renderizamos la pantalla normal
   return (
-    <div className="h-screen w-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-[100dvh] w-screen flex flex-col bg-gray-50 overflow-hidden">
       <Header
         verPerfil
         tipoUser="Restaurante"
+        onAbrirMenuNavegacion={() => setMenuNavegacionAbierto(true)}
         perfilNombre={perfilNombre}
         perfilEmail={perfilEmail}
         fotoPerfil={fotoPerfil}
@@ -328,7 +338,12 @@ export default function RestauranteLayout() {
       />
       <div className="flex flex-1 overflow-hidden">
         {/* Le pasamos el estado real al Sidebar para que se bloquee visualmente */}
-        <Sidebar tipoUser="Restaurante" secciones={lista_Secciones} />
+        <Sidebar
+          tipoUser="Restaurante"
+          secciones={lista_Secciones}
+          mobileOpen={menuNavegacionAbierto}
+          onCloseMobile={() => setMenuNavegacionAbierto(false)}
+        />
 
         <main className="flex-1 flex flex-col overflow-y-auto relative">
           <Outlet />
@@ -336,7 +351,7 @@ export default function RestauranteLayout() {
       </div>
       {mostrarAvisoCierre && tiempoRestante && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 bg-opacity-50">
-          <div className="bg-white rounded-2xl shadow-xl w-80 p-6 text-center">
+          <div className="bg-white rounded-2xl shadow-xl w-[min(20rem,calc(100vw-2rem))] p-5 sm:p-6 text-center">
             <div className="text-4xl mb-4">⏰</div>
             <h2 className="text-lg font-semibold text-gray-800 mb-2">
               El local cerrará pronto

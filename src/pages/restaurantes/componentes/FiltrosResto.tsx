@@ -133,7 +133,7 @@ export default function FiltrosRestaurantes<T>({
       ) : undefined}
 
       {/* Botones de acción */}
-      <div className="flex items-end gap-6">
+      <div className="flex w-full flex-wrap items-end justify-start sm:justify-end gap-4 sm:gap-6">
         {/* Orden */}
         <div className="flex flex-col gap-1 min-w-11">
           <span className="text-sm font-medium text-gray-700">Orden</span>

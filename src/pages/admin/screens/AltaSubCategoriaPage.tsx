@@ -4,6 +4,7 @@ import { TextInput } from "../../../components/TextInput.js";
 import { TextSelector } from "../../../components/TextSelector.js";
 import { administradorApi, type CategoriaProducto } from "../../../api/administradorApi.js";
 import type { ImageField } from "../../../components/typos/ImageField.js";
+import AdminPageShell, { AdminPageHeader } from "../components/AdminPageShell.js";
 
 const CATEGORIAS: CategoriaProducto[] = [
   "Bebida",
@@ -73,8 +74,12 @@ export default function AltaSubCategoriaPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Nueva subcategoría</h1>
+    <AdminPageShell>
+    <div className="mx-auto w-full max-w-md flex flex-col gap-4">
+      <AdminPageHeader
+        titulo="Nueva subcategoría"
+        descripcion="Creá una subcategoría para organizar los productos del menú."
+      />
 
       <label className="flex flex-col gap-1">
         <span className="text-sm font-medium">Nombre</span>
@@ -124,5 +129,6 @@ export default function AltaSubCategoriaPage() {
         {estado === "cargando" ? "Creando..." : "Crear subcategoría"}
         </button>
     </div>
+    </AdminPageShell>
   );
 }

@@ -56,7 +56,7 @@ export default function ProductoCard({ producto, onClick }: ProductoCardPropd) {
     <div
       onClick={onClick}
       className={`
-    flex gap-3 p-2.5 min-h-28 rounded-[14px] overflow-hidden relative
+    flex flex-col sm:flex-row gap-3 p-2.5 min-h-28 rounded-[14px] overflow-hidden relative
     transition-all duration-180 ease-in-out
     border shadow-[0_1px_3px_rgba(0,0,0,0.02)] 
     ${

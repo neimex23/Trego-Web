@@ -22,6 +22,7 @@ interface HeaderProps {
   onChangeHoraCierre?: (item: string | undefined) => void;
   horaApertura?: string | undefined;
   onChangeHoraApertura?: (item: string | undefined) => void;
+  onAbrirMenuNavegacion?: () => void;
   onLogout?: () => void;
   perfilNombre?: string;
   perfilEmail?: string;
@@ -66,6 +67,7 @@ export default function Header(props: HeaderProps) {
     navigateTo,
     horaApertura,
     onChangeHoraApertura,
+    onAbrirMenuNavegacion,
     onCambiarContraseña,
     verHistorial,
     verPerfil,
@@ -93,8 +95,18 @@ export default function Header(props: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 bg-white">
-      <div className="flex items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6">
-        <div className="w-64 pr-12 items-center justify-center flex">
+      <div className="flex items-center gap-2 px-3 py-3 sm:gap-4 sm:px-6">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          {onAbrirMenuNavegacion && (
+            <button
+              type="button"
+              onClick={onAbrirMenuNavegacion}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 md:hidden"
+              aria-label="Abrir menú de navegación"
+            >
+              <IconMenu className="h-5 w-5" />
+            </button>
+          )}
           <button
             onClick={() => navigate(navigateTo ?? "/")}
             className="shrink-0 cursor-pointer transition-transform hover:scale-105"
@@ -108,7 +120,7 @@ export default function Header(props: HeaderProps) {
                     : tregoAdmin
               }
               alt="Trego"
-              className="h-13 w-13 sm:h-15 sm:w-15 scale-120"
+              className="h-11 w-11 sm:h-13 sm:w-13 scale-110 sm:scale-120"
             />
           </button>
         </div>

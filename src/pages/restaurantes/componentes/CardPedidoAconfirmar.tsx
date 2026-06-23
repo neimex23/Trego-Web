@@ -136,7 +136,7 @@ export default function CardPedidoAconfirmar({
           ))}
         </div>
 
-        <div className="w-full md:w-85 bg-gray-50/50 p-4 rounded-xl border border-gray-100 flex flex-col h-full text-sm">
+        <div className="w-full md:max-w-xs md:w-85 bg-gray-50/50 p-4 rounded-xl border border-gray-100 flex flex-col h-full text-sm">
           <div>
             <span className="text-xs text-gray-400 font-bold block uppercase tracking-wider">
               Cliente
@@ -174,17 +174,17 @@ export default function CardPedidoAconfirmar({
 
       {/* BARRA INFERIOR */}
       {esPagado && onCancelar && onConfirmar && (
-        <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex gap-3 justify-end">
+        <div className="px-4 sm:px-5 py-3 bg-gray-50 border-t border-gray-100 flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
           <button
             onClick={() => onCancelar(pedido)}
-            className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-red-600 hover:bg-red-50 border border-gray-200 hover:border-red-100 transition-all flex items-center gap-1.5"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-red-600 hover:bg-red-50 border border-gray-200 hover:border-red-100 transition-all flex items-center justify-center gap-1.5"
           >
             <X size={16} />
             RECHAZAR
           </button>
           <button
             onClick={() => onConfirmar(pedido)}
-            className="px-6 py-2.5 rounded-xl text-sm font-black text-white bg-green-600 hover:bg-green-700 shadow-sm transition-all flex items-center gap-1.5 active:scale-95"
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-black text-white bg-green-600 hover:bg-green-700 shadow-sm transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
             <Check size={16} strokeWidth={3} />
             CONFIRMAR PEDIDO
@@ -193,8 +193,8 @@ export default function CardPedidoAconfirmar({
       )}
 
       {onActualizarEstado && mostrarSelectorCambio && (
-        <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex flex-wrap items-center gap-3 justify-end">
-          <div className="w-70">
+        <div className="px-4 sm:px-5 py-3 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:justify-end">
+          <div className="w-full sm:w-70">
             <TextSelector
               items={opcionesSelector}
               mapToItem={(item) => ({ id: item.id, label: item.label })}
@@ -210,7 +210,7 @@ export default function CardPedidoAconfirmar({
           <button
             onClick={handleActualizarEstado}
             disabled={!nuevoEstado}
-            className="px-5 py-2.5 rounded-xl text-sm font-black text-white bg-trego-restaurante hover:bg-trego-restaurante shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-black text-white bg-trego-restaurante hover:bg-trego-restaurante shadow-sm transition-all flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Check size={16} strokeWidth={3} />
             ACTUALIZAR ESTADO

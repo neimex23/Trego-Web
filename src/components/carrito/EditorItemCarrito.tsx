@@ -26,15 +26,14 @@ export default function EditorItemCarrito({
   const [quitados, setQuitados] = useState<DTOIngrediente[]>(
     item?.ingredientesAQuitar ?? [],
   );
-  const [errorIngredientes, setErrorIngredientes] = useState(null);
   const [errorGuardar, setErrorGuardar] = useState<string | null>(null);
   const { conDescuento } = obtenerPrecios(item?.producto ?? {});
+  const ingredientesProducto = item?.producto?.ingredientes ?? [];
 
   useEffect(() => {
     setCantidad(item?.cantidad ?? 1);
     setComentarios(item?.observaciones ?? "");
     setQuitados(item?.ingredientesAQuitar ?? []);
-    setErrorIngredientes(null);
     setErrorGuardar(null);
   }, [item?.producto?.idProducto]);
 
@@ -121,24 +120,20 @@ export default function EditorItemCarrito({
           <p className="text-[11px] font-extrabold text-gray-800">
             Ingredientes
           </p>
-          {quitados.length === 0 ? (
+          {ingredientesProducto.length === 0 ? (
             <p className="mt-1 text-[11px] text-gray-500">
               Este producto no tiene ingredientes configurados.
             </p>
           ) : (
             <p className="mt-1 text-[11px] text-gray-500">
-              Tocá los ingredientes que querés sacar (tiene que quedar al menos
-              uno).
-            </p>
-          )}
-          {errorIngredientes && (
-            <p className="mt-2 rounded-lg border border-orange-200 bg-orange-50 px-2.5 py-2 text-[11px] font-bold text-orange-800">
-              {errorIngredientes}
+              Tocá los ingredientes que querés sacar.
             </p>
           )}
           <div className="mt-2 flex flex-wrap gap-2">
-            {item.producto?.ingredientes?.map((ing) => {
-              const quitado = quitados.includes(ing);
+            {ingredientesProducto.map((ing) => {
+              const quitado = quitados.some(
+                (q) => q.idIngrediente === ing.idIngrediente,
+              );
               return (
                 <button
                   type="button"

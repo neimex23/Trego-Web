@@ -124,16 +124,16 @@ export default function CambiarContraseñaPage({
 
   if (paso === "CARGA") {
     return (
-      <div className="flex flex-1 items-center justify-center p-8">
+      <div className="flex flex-1 items-center justify-center p-4 sm:p-8 min-h-0">
         <div className="w-10 h-10 rounded-full border-4 border-gray-200 border-t-gray-500 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 items-start justify-center p-6 sm:p-10">
-      <div className="w-full max-w-lg rounded-2xl bg-white shadow-lg border border-gray-100 p-6 sm:p-8">
-        <h1 className="text-2xl font-bold text-gray-800">Cambiar contraseña</h1>
+    <div className="flex flex-1 items-start justify-center p-3 sm:p-6 md:p-10 min-h-0 overflow-y-auto">
+      <div className="w-full max-w-lg rounded-t-2xl sm:rounded-2xl bg-white shadow-lg border border-gray-100 p-4 sm:p-6 md:p-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Cambiar contraseña</h1>
         <p className="mt-2 text-sm text-gray-500">
           Actualizá la contraseña de tu cuenta de {tipo.toLowerCase()}.
         </p>

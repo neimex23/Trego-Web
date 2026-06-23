@@ -18,6 +18,8 @@ export interface DTORestaurante {
   calificacionProm?: number | null;
   radioEntrega?: number;
   habilitado?: boolean;
+  /** Cuenta activa (false si el admin deshabilitó el acceso). Distinto de habilitado (aprobación). */
+  cuentaHabilitada?: boolean;
   abierto?: boolean;
   horaApertura?: string | null;
   horaCierre?: string | null;

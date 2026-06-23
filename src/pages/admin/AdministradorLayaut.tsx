@@ -47,21 +47,19 @@ export const SECCIONES_ADMIN: SidebarSection[] = [
         path: "/admin/administradores/crear",
         end: true,
       },
-      {
-        label: "Estadísticas",
-        disabled: true,
-      },
     ],
   },
 ];
 
 export default function AdministradorLayaut() {
   const navigate = useNavigate();
+  const location = useLocation();
   // Verificamos si hay sesión iniciada
   const token = localStorage.getItem("jwtToken");
   const [pendientesCount, setPendientesCount] = useState(0);
   const [perfilNombre, setPerfilNombre] = useState("Administrador");
   const [perfilEmail, setPerfilEmail] = useState("");
+  const [menuNavegacionAbierto, setMenuNavegacionAbierto] = useState(false);
 
 
   if (!token) {
@@ -96,6 +94,10 @@ export default function AdministradorLayaut() {
     };
   }, [token]);
 
+  useEffect(() => {
+    setMenuNavegacionAbierto(false);
+  }, [location.pathname]);
+
   // cerrar sesion
   const handleLogout = async () => {
     try {
@@ -121,20 +123,25 @@ export default function AdministradorLayaut() {
 
   // Si pasa todas las reglas, renderizamos la pantalla normal
   return (
-    <div className="h-screen w-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-[100dvh] w-screen flex flex-col bg-gray-50 overflow-hidden notranslate" lang="es">
       <Header
         tipoUser="Administrador"
+        onAbrirMenuNavegacion={() => setMenuNavegacionAbierto(true)}
         perfilNombre={perfilNombre}
         perfilEmail={perfilEmail}
         onCambiarContraseña={() => navigate("/admin/perfil/contraseña")}
         onLogout={handleLogout}
         cambiarContrasenia
       />
-      <div className="flex flex-1 overflow-hidden">
-        {/* Le pasamos el estado real al Sidebar para que se bloquee visualmente */}
-        <Sidebar tipoUser="Administrador" secciones={seccionesConBadges} />
+      <div className="flex flex-1 min-h-0 overflow-hidden">
+        <Sidebar
+          tipoUser="Administrador"
+          secciones={seccionesConBadges}
+          mobileOpen={menuNavegacionAbierto}
+          onCloseMobile={() => setMenuNavegacionAbierto(false)}
+        />
 
-        <main className="flex-1 flex flex-col overflow-y-auto relative">
+        <main className="flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden relative">
           <Outlet />
         </main>
       </div>
