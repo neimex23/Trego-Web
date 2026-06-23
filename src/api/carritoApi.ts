@@ -55,14 +55,17 @@ export async function modificarProductoEnCarrito(data: DTOProductoPedido) {
 export async function eliminarProductoDelCarrito(
   idProducto: number,
   producto: any,
+  idLinea?: number,
 ) {
-  const body = {
+  const body: any = {
     producto: {
       idProducto,
       precio: producto ? producto.precio || 0 : 0,
       nombre: producto?.nombre,
     },
   };
+
+  if (idLinea != null) body.idLinea = idLinea;
   const response = await fetchConAuth(ENDPOINTS.CARRITO_PRODUCTOS, {
     method: "DELETE",
     body: JSON.stringify(body),

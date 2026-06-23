@@ -3,7 +3,7 @@ import { formatearHorario } from "../../utils/restaurantes.js";
 import { IconClock, IconLocation } from "../icons.jsx";
 
 interface RestauranteBannerProps {
-  restaurante: DTORestaurante;
+  restaurante: any; // Debe de quedar como any hasta que se quite el mapeo, ahi deberia a pasar a se DTORestaurante
   cantidadResenas?: number;
 }
 export default function RestauranteBanner({
@@ -17,13 +17,17 @@ export default function RestauranteBanner({
     horaApertura,
     horaCierre,
     abierto,
+    horarioServicio,
   } = restaurante;
+
+  console.log("Viene en restaurante: ", restaurante);
 
   const ubicacion = direccion?.calle
     ? `${direccion.calle} - ${direccion.numero ?? "Montevideo"}`
     : "Montevideo";
 
-  const horario = formatearHorario(horaApertura, horaCierre);
+  // Esto tiene que quedar como array hasta que no se saque el mapeo de restaurante y se use el DTORestaurante directamente como respuesta del backend
+  const horario = formatearHorario(horarioServicio[0], horarioServicio[1]);
 
   return (
     <section className="overflow-hidden rounded-2xl shadow-sm">

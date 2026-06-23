@@ -20,7 +20,6 @@ export const ENDPOINTS = {
   // Carrito
   CARRITO: '/api/carrito',
   CARRITO_PRODUCTOS: '/api/carrito/productos',
-  CARRITO_TOTAL: '/api/carrito/total',
   CARRITO_ITEMS: '/api/carrito/items',
 
   // Pagos

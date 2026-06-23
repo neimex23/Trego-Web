@@ -39,6 +39,32 @@ function sonMismosIngredientes(
   return nombresA.every((nombre, idx) => nombre === nombresB[idx]);
 }
 
+/**
+ * Fusiona líneas idénticas (mismo producto, mismas notas y mismos ingredientes a
+ * quitar) sumando sus cantidades: si tras
+ * editar una línea queda igual a otra, deben consolidarse en una sola.  */
+
+function consolidarItems(items: DTOProductoPedido[]): DTOProductoPedido[] {
+  const resultado: DTOProductoPedido[] = [];
+  for (const item of items) {
+    const idItem = item.producto?.idProducto ?? (item.producto as any)?.id;
+    const existente = resultado.find((r) => {
+      const idR = r.producto?.idProducto ?? (r.producto as any)?.id;
+      return (
+        idR === idItem &&
+        (r.observaciones ?? "") === (item.observaciones ?? "") &&
+        sonMismosIngredientes(r.ingredientesAQuitar, item.ingredientesAQuitar)
+      );
+    });
+    if (existente) {
+      existente.cantidad = (existente.cantidad ?? 0) + (item.cantidad ?? 0);
+    } else {
+      resultado.push({ ...item });
+    }
+  }
+  return resultado;
+}
+
 export interface DireccionContexto {
   tipo: "guardada" | string;
   data: DTODireccion;
@@ -89,14 +115,11 @@ export interface CarritoContextType {
     args: DTOProductoPedido,
     restauranteInfo?: DTORestaurante | null,
   ) => Promise<boolean>;
-  eliminarProducto: (idProducto: number) => Promise<void>;
-  cambiarCantidad: (idProducto: number, nuevaCantidad: number) => Promise<void>;
-  cambiarComentarios: (
-    idProducto: number,
-    comentarios: string,
-  ) => Promise<void>;
+  eliminarProducto: (index: number) => Promise<void>;
+  cambiarCantidad: (index: number, nuevaCantidad: number) => Promise<void>;
+  cambiarComentarios: (index: number, comentarios: string) => Promise<void>;
   cambiarIngredientesQuitados: (
-    idProducto: number,
+    index: number,
     ingredientesQuitados: DTOIngrediente[],
   ) => Promise<void>;
   validarRestauranteAbierto: (estadoAbierto?: boolean) => boolean;
@@ -443,6 +466,7 @@ export function CarritoProvider({ children }: CarritoProviderProps) {
           comentarios: pedido.observaciones,
           idRestaurante,
           ingredientesQuitados: pedido.ingredientesAQuitar,
+          idLinea: (pedido as any).idLinea,
         });
         const dto = await agregarProductoAlCarritoApi(body);
         if (!dto) {
@@ -519,58 +543,56 @@ export function CarritoProvider({ children }: CarritoProviderProps) {
     return true;
   }
 
-  async function eliminarProducto(idProducto: number) {
+  async function eliminarProducto(index: number) {
+    const item = items[index];
+    if (!item) return;
+
     if (tieneSesion()) {
       invalidarCargasCarritoPendientes();
       try {
-        const item = items.find((i) => {
-          const id = i.producto?.idProducto || (i.producto as any)?.id;
-          return id === idProducto;
-        });
-        const dto = await eliminarProductoDelCarrito(idProducto, item);
+        const idProducto =
+          item.producto?.idProducto ?? (item.producto as any)?.id ?? 0;
+        const dto = await eliminarProductoDelCarrito(
+          idProducto,
+          item.producto,
+          item.idLinea,
+        );
         aplicarCarritoDto(dto);
       } catch (err: any) {
         setMensajeCarrito(err.message ?? "No se pudo eliminar el producto");
       }
       return;
     }
-    setItems((prev) =>
-      prev.filter((it) => {
-        const id = it.producto?.idProducto || (it.producto as any)?.id;
-        return id !== idProducto;
-      }),
-    );
+    setItems((prev) => prev.filter((_, i) => i !== index));
   }
 
-  async function cambiarCantidad(idProducto: number, nuevaCantidad: number) {
+  async function cambiarCantidad(index: number, nuevaCantidad: number) {
     const cantidad = Math.max(0, Number(nuevaCantidad) || 0);
+    const item = items[index];
+    if (!item?.producto) return;
 
     // 1. ACTUALIZACIÓN OPTIMISTA: Cambiamos la UI instantáneamente para ambos casos (con y sin sesión)
-    setItems(
-      (prev) =>
-        prev
-          .map((it) => {
-            const id = it.producto?.idProducto || (it.producto as any)?.id;
-            return id === idProducto ? { ...it, cantidad } : it;
-          })
-          .filter((it) => (it.cantidad ?? 0) > 0), // Solucionado el bug que vaciaba todo el carrito
+    setItems((prev) =>
+      prev
+        .map((it, i) => (i === index ? { ...it, cantidad } : it))
+        .filter((it) => (it.cantidad ?? 0) > 0), // Solucionado el bug que vaciaba todo el carrito
     );
 
     // 2. Si tiene sesión, se comunica con el servidor en SEGUNDO PLANO
     if (tieneSesion()) {
-      const item = items.find((i) => {
-        const id = i.producto?.idProducto || (i.producto as any)?.id;
-        return id === idProducto;
-      });
-      if (!item?.producto) return;
       invalidarCargasCarritoPendientes();
       try {
-        await modificarProductoEnCarrito({
-          producto: item.producto,
-          cantidad,
-          observaciones: item?.observaciones ?? "",
-          ingredientesAQuitar: item?.ingredientesAQuitar ?? [],
-        });
+        await modificarProductoEnCarrito(
+          armarProductoPedidoRequest({
+            producto: item.producto,
+            cantidad,
+            comentarios: item.observaciones ?? "",
+            idRestaurante:
+              item.producto?.idRestaurante ?? restaurante?.idRestaurante,
+            ingredientesQuitados: item.ingredientesAQuitar ?? [],
+            idLinea: item.idLinea,
+          }),
+        );
         await cargarCarritoDesdeApi(true);
       } catch (err: any) {
         setMensajeCarrito(err.message ?? "No se pudo actualizar la cantidad");
@@ -579,67 +601,77 @@ export function CarritoProvider({ children }: CarritoProviderProps) {
     }
   }
 
-  async function cambiarComentarios(idProducto: number, comentarios: string) {
-    // Actualización optimista
-    setItems((prev) =>
-      prev.map((it) => {
-        const id = it.producto?.idProducto || (it.producto as any)?.id;
-        return id === idProducto
-          ? { ...it, observaciones: comentarios ?? "" }
-          : it;
-      }),
-    );
+  async function cambiarComentarios(index: number, comentarios: string) {
+    const item = items[index];
+    if (!item) return;
 
     if (tieneSesion()) {
-      const item = items.find((i) => {
-        const id = i.producto?.idProducto || (i.producto as any)?.id;
-        return id === idProducto;
-      });
-      if (!item?.producto) return;
+      // Actualización optimista
+      setItems((prev) =>
+        prev.map((it, i) =>
+          i === index ? { ...it, observaciones: comentarios ?? "" } : it,
+        ),
+      );
+      if (!item.producto) return;
       invalidarCargasCarritoPendientes();
       try {
-        await modificarProductoEnCarrito({
-          producto: item.producto,
-          cantidad: item?.cantidad ?? 1,
-          observaciones: comentarios,
-          ingredientesAQuitar: item?.ingredientesAQuitar ?? [],
-        });
+        await modificarProductoEnCarrito(
+          armarProductoPedidoRequest({
+            producto: item.producto,
+            cantidad: item.cantidad ?? 1,
+            comentarios,
+            idRestaurante:
+              item.producto?.idRestaurante ?? restaurante?.idRestaurante,
+            ingredientesQuitados: item.ingredientesAQuitar ?? [],
+            idLinea: item.idLinea,
+          }),
+        );
         await cargarCarritoDesdeApi(true);
       } catch (err: any) {
         setMensajeCarrito(err.message ?? "No se pudo guardar el comentario");
         await cargarCarritoDesdeApi(true);
       }
+    } else {
+      // Sin sesión: al editar la nota la línea puede quedar igual a otra; consolidar.
+      setItems((prev) =>
+        consolidarItems(
+          prev.map((it, i) =>
+            i === index ? { ...it, observaciones: comentarios ?? "" } : it,
+          ),
+        ),
+      );
     }
   }
 
   async function cambiarIngredientesQuitados(
-    idProducto: number,
+    index: number,
     ingredientesQuitados: DTOIngrediente[],
   ) {
     const lista = ingredientesQuitados ?? [];
-
-    // Actualización optimista
-    setItems((prev) =>
-      prev.map((it) => {
-        const id = it.producto?.idProducto || (it.producto as any)?.id;
-        return id === idProducto ? { ...it, ingredientesAQuitar: lista } : it;
-      }),
-    );
+    const item = items[index];
+    if (!item) return;
 
     if (tieneSesion()) {
-      const item = items.find((i) => {
-        const id = i.producto?.idProducto || (i.producto as any)?.id;
-        return id === idProducto;
-      });
-      if (!item?.producto) return;
+      // Actualización optimista
+      setItems((prev) =>
+        prev.map((it, i) =>
+          i === index ? { ...it, ingredientesAQuitar: lista } : it,
+        ),
+      );
+      if (!item.producto) return;
       invalidarCargasCarritoPendientes();
       try {
-        await modificarProductoEnCarrito({
-          producto: item.producto,
-          cantidad: item?.cantidad ?? 1,
-          observaciones: item?.observaciones ?? "",
-          ingredientesAQuitar: lista,
-        });
+        await modificarProductoEnCarrito(
+          armarProductoPedidoRequest({
+            producto: item.producto,
+            cantidad: item.cantidad ?? 1,
+            comentarios: item.observaciones ?? "",
+            idRestaurante:
+              item.producto?.idRestaurante ?? restaurante?.idRestaurante,
+            ingredientesQuitados: lista,
+            idLinea: item.idLinea,
+          }),
+        );
         await cargarCarritoDesdeApi(true);
       } catch (err: any) {
         setMensajeCarrito(
@@ -647,6 +679,15 @@ export function CarritoProvider({ children }: CarritoProviderProps) {
         );
         await cargarCarritoDesdeApi(true);
       }
+    } else {
+      // Sin sesión: si la línea editada queda igual a otra, consolidarlas.
+      setItems((prev) =>
+        consolidarItems(
+          prev.map((it, i) =>
+            i === index ? { ...it, ingredientesAQuitar: lista } : it,
+          ),
+        ),
+      );
     }
   }
 

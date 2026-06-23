@@ -350,13 +350,18 @@ export function armarProductoPedidoRequest({
   comentarios,
   idRestaurante,
   ingredientesQuitados,
+  idLinea,
 }) {
-  return {
+  const body = {
     cantidad: cantidad ?? 1,
     observaciones: comentarios ?? '',
     ingredientesAQuitar: ingredientesAQuitarParaApi(ingredientesQuitados, producto),
     producto: productoMinimoParaCarrito(producto, idRestaurante),
   }
+  // idLinea identifica la línea exacta cuando hay varias del mismo producto con
+  // distinta personalización. Solo se envía en modificación/eliminación.
+  if (idLinea != null) body.idLinea = idLinea
+  return body
 }
 
 export function ordenFrontABackend(ordenPrecio) {

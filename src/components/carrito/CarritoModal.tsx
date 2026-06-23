@@ -45,31 +45,33 @@ function IngredientesEditor({
   if (!todos.length) return null;
 
   function toggle(nombre: string): void {
-    const idRestaurante =
-      producto.idRestaurante ?? quitados[0]?.idRestaurante ?? 0;
-    const actuales = quitados
-      .map((i) => i.nombre)
-      .filter((n): n is string => Boolean(n));
-
-    let siguientes: string[];
     if (quitadosNombres.has(nombre)) {
-      siguientes = actuales.filter((n) => n !== nombre);
+      onChange(quitados.filter((q) => q.nombre !== nombre));
       setError(null);
-    } else {
-      if (actuales.length + 1 >= todos.length) {
-        setError(MSG_TODOS_INGREDIENTES);
-        return;
-      }
-      siguientes = [...actuales, nombre];
-      setError(null);
+      return;
     }
 
-    onChange(
-      siguientes.map((n) => ({
-        nombre: n,
-        idRestaurante,
-      })),
-    );
+    if (quitados.length + 1 >= todos.length) {
+      setError(MSG_TODOS_INGREDIENTES);
+      return;
+    }
+
+    const delCatalogo = (producto.ingredientes ?? []).find(
+      (i) => typeof i !== "string" && i.nombre === nombre,
+    ) as DTOIngrediente | undefined;
+    const idRestaurante =
+      producto.idRestaurante ??
+      delCatalogo?.idRestaurante ??
+      quitados[0]?.idRestaurante ??
+      0;
+
+    const nuevo: DTOIngrediente = {
+      idIngrediente: delCatalogo?.idIngrediente ?? 0,
+      nombre,
+      idRestaurante,
+    };
+    onChange([...quitados, nuevo]);
+    setError(null);
   }
 
   return (
@@ -107,10 +109,14 @@ function IngredientesEditor({
 
 interface ItemCarritoProps {
   item: DTOProductoPedido;
-  onNota: (item: DTOProductoPedido) => void;
-  onEliminar: (id: number) => void;
-  onCambiarCantidad: (id: number, cantidad: number) => void;
-  onCambiarIngredientes: (id: number, ingredientes: DTOIngrediente[]) => void;
+  index: number;
+  onNota: (index: number, item: DTOProductoPedido) => void;
+  onEliminar: (index: number) => void;
+  onCambiarCantidad: (index: number, cantidad: number) => void;
+  onCambiarIngredientes: (
+    index: number,
+    ingredientes: DTOIngrediente[],
+  ) => void;
 }
 
 const CLS = {
@@ -143,12 +149,12 @@ function extraerIdItem(item: DTOProductoPedido): number {
 
 function ItemCarrito({
   item,
+  index,
   onNota,
   onEliminar,
   onCambiarCantidad,
   onCambiarIngredientes,
 }: ItemCarritoProps): React.JSX.Element {
-  const idReal = extraerIdItem(item);
   const cantidad = item.cantidad || 1;
   const { conDescuento } = obtenerPrecios(item.producto ?? {});
 
@@ -163,7 +169,7 @@ function ItemCarrito({
       <div className="flex flex-col m-auto items-center gap-2">
         <button
           type="button"
-          onClick={() => onCambiarCantidad(idReal, cantidad + 1)}
+          onClick={() => onCambiarCantidad(index, cantidad + 1)}
           className="h-7 w-7 rounded-full border-[1.5px] border-trego-orange bg-orange-50 flex items-center justify-center text-trego-orange hover:bg-orange-100 active:scale-95 transition-colors"
           aria-label="Aumentar cantidad"
         >
@@ -176,7 +182,7 @@ function ItemCarrito({
 
         <button
           type="button"
-          onClick={() => onCambiarCantidad(idReal, cantidad - 1)}
+          onClick={() => onCambiarCantidad(index, cantidad - 1)}
           className="h-7 w-7 rounded-full border-[1.5px] border-trego-orange bg-orange-50 flex items-center justify-center text-trego-orange hover:bg-orange-100 active:scale-95 transition-colors"
           aria-label="Disminuir cantidad"
         >
@@ -198,7 +204,7 @@ function ItemCarrito({
           <IngredientesEditor
             producto={item.producto}
             ingredientesQuitados={item.ingredientesAQuitar ?? []}
-            onChange={(val) => onCambiarIngredientes(idReal, val)}
+            onChange={(val) => onCambiarIngredientes(index, val)}
           />
         )}
         {item.producto?.tipo === EnumTipoProducto.Combo &&
@@ -212,7 +218,7 @@ function ItemCarrito({
         <div className="flex shrink-0 items-center gap-1.5">
           <button
             type="button"
-            onClick={() => onNota(item)}
+            onClick={() => onNota(index, item)}
             className={CLS.btnNota}
             title="Agregar nota al producto"
           >
@@ -220,7 +226,7 @@ function ItemCarrito({
           </button>
           <button
             type="button"
-            onClick={() => onEliminar(idReal)}
+            onClick={() => onEliminar(index)}
             className={CLS.btnEliminar}
             title="Eliminar producto"
           >
@@ -262,7 +268,7 @@ export default function CarritoModal(): React.JSX.Element {
     restauranteAbierto,
   } = useCarrito();
 
-  const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
   const [editandoNombre, setEditandoNombre] = useState<string>("");
   const [comentarioTmp, setComentarioTmp] = useState<string>("");
 
@@ -334,26 +340,26 @@ export default function CarritoModal(): React.JSX.Element {
     intentarPagar();
   }
 
-  function abrirEditorComentario(item: DTOProductoPedido): void {
-    setEditandoId(extraerIdItem(item));
+  function abrirEditorComentario(index: number, item: DTOProductoPedido): void {
+    setEditandoIndex(index);
     setEditandoNombre(item.producto?.nombre ?? "Producto");
     setComentarioTmp(item.observaciones ?? "");
   }
 
   function guardarComentario(): void {
-    if (!editandoId) return;
-    cambiarComentarios(editandoId, comentarioTmp);
+    if (editandoIndex === null) return;
+    cambiarComentarios(editandoIndex, comentarioTmp);
     cancelarEdicion();
   }
 
   function cancelarEdicion(): void {
-    setEditandoId(null);
+    setEditandoIndex(null);
     setEditandoNombre("");
     setComentarioTmp("");
   }
 
-  function cambiarCantidadItem(id: number, x: number): void {
-    cambiarCantidad(id, x);
+  function cambiarCantidadItem(index: number, x: number): void {
+    cambiarCantidad(index, x);
     if (x <= 0) cancelarEdicion();
   }
 
@@ -438,8 +444,9 @@ export default function CarritoModal(): React.JSX.Element {
           ) : (
             items.map((item: DTOProductoPedido, index) => (
               <ItemCarrito
-                key={`${extraerIdItem(item)}-${index}-${item.observaciones ?? ""}`}
+                key={`${item.idLinea ?? extraerIdItem(item)}-${index}-${item.observaciones ?? ""}`}
                 item={item}
+                index={index}
                 onNota={abrirEditorComentario}
                 onEliminar={eliminarProducto}
                 onCambiarCantidad={cambiarCantidadItem}
@@ -470,7 +477,7 @@ export default function CarritoModal(): React.JSX.Element {
           </div>
         )}
 
-        {editandoId && (
+        {editandoIndex !== null && (
           <div className="mt-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
             <div className="mb-2 flex items-center gap-2">
               <p className="text-[12px] font-extrabold text-gray-600">
