@@ -21,5 +21,5 @@ export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
 googleProvider.setCustomParameters({
-  prompt: 'select_account' // 👈 Esto obliga a Google a mostrar siempre el menú de cuentas
+  prompt: 'select_account'
 });

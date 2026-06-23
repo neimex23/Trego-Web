@@ -52,7 +52,7 @@ export default function CardPedidoAconfirmar({
   };
 
   const finalizado =
-    pedido.estado === EnumEstadoPedido.Cancelado ||
+    pedido.estado === EnumEstadoPedido.Reembolsado ||
     pedido.estado === EnumEstadoPedido.Entregado;
   const esPagado = pedido.estado === EnumEstadoPedido.Pagado;
   const mostrarSelectorCambio =
@@ -97,7 +97,7 @@ export default function CardPedidoAconfirmar({
               <AlertTriangle size={14} className="animate-bounce" />
             )}
           </div>
-        ) : pedido.estado === EnumEstadoPedido.Cancelado ? (
+        ) : pedido.estado === EnumEstadoPedido.Reembolsado ? (
           <div className="flex items-center gap-1.5 text-xs font-bold">
             <span>Cancelado - Pedido el: {toDateString(pedido.fechaCreacion)}</span>
           </div>

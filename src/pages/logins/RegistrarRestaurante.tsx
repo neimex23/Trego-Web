@@ -264,7 +264,7 @@ export default function RegistrarRestaurante() {
                   <TextInput
                     value={verifContrasenia}
                     onChange={setVeriContrasenia}
-                    placeholder="Contraseña"
+                    placeholder="Verificación de Contraseña"
                     type="password"
                     colorStyle="trego-restaurante"
                     showStrength

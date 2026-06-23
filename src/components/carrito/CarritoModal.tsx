@@ -170,10 +170,10 @@ function ItemCarrito({
         <button
           type="button"
           onClick={() => onCambiarCantidad(index, cantidad + 1)}
-          className="h-7 w-7 rounded-full border-[1.5px] border-trego-orange bg-orange-50 flex items-center justify-center text-trego-orange hover:bg-orange-100 active:scale-95 transition-colors"
+          className="h-9 w-8 rounded-full flex items-center justify-center text-trego-add hover:bg-orange-100 hover:text-trego-orange active:scale-95 transition-colors"
           aria-label="Aumentar cantidad"
         >
-          <ChevronUp size={16} />
+          <ChevronUp size={24} />
         </button>
 
         <span className="min-w-8 text-center text-[14px] font-extrabold text-gray-900">
@@ -183,10 +183,10 @@ function ItemCarrito({
         <button
           type="button"
           onClick={() => onCambiarCantidad(index, cantidad - 1)}
-          className="h-7 w-7 rounded-full border-[1.5px] border-trego-orange bg-orange-50 flex items-center justify-center text-trego-orange hover:bg-orange-100 active:scale-95 transition-colors"
+          className="h-9 w-8 rounded-full flex items-center justify-center text-trego-add hover:bg-orange-100 hover:text-trego-orange active:scale-95 transition-colors"
           aria-label="Disminuir cantidad"
         >
-          <ChevronDown size={16} />
+          <ChevronDown size={24} />
         </button>
       </div>
 
@@ -351,7 +351,7 @@ export default function CarritoModal(): React.JSX.Element {
     cambiarComentarios(editandoIndex, comentarioTmp);
     cancelarEdicion();
   }
-
+  
   function cancelarEdicion(): void {
     setEditandoIndex(null);
     setEditandoNombre("");
@@ -368,11 +368,11 @@ export default function CarritoModal(): React.JSX.Element {
       abierto={carritoAbierto}
       onCerrar={cerrar}
       ariaLabel="Carrito"
-      className="max-w-160"
+      className="max-w-160 max-h-[90vh] flex flex-col overflow-hidden"
       zIndex={Z_MODAL?.carrito ?? 50}
       escucharEscape={modalSuperior === "carrito"}
     >
-      <div className="p-4 sm:p-5">
+      <div className="p-4 sm:p-5 flex flex-col min-h-0 overflow-hidden">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-[18px] font-extrabold text-gray-900">Carrito</h2>
           <button
@@ -426,7 +426,7 @@ export default function CarritoModal(): React.JSX.Element {
           </button>
         </div>
 
-        <div className="mt-3 max-h-170 overflow-y-auto pr-1 flex flex-col gap-2.5 custom-scrollbar">
+        <div className="mt-3 flex-1 min-h-0 overflow-y-auto pr-1 flex flex-col gap-2.5 custom-scrollbar">
           {cargandoCarrito ? (
             <div className="flex flex-col items-center gap-3 py-10">
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-orange-100 border-t-trego-orange" />
@@ -456,62 +456,61 @@ export default function CarritoModal(): React.JSX.Element {
           )}
         </div>
 
-        {!carritoVacio && (
-          <div className="mt-4 rounded-2xl border border-orange-100 bg-[#fff8f4] px-4 pt-2 pb-4">
-            <div className="flex pb-2 items-center justify-between">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-orange-400">
-                Total del pedido
-              </p>
-              <p className="text-[20px] font-extrabold text-gray-900">
-                {formatearMoneda(total)}
-              </p>
+        {!carritoVacio &&
+          (editandoIndex !== null ? (
+            <div className="mt-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+              <div className="mb-2 flex items-center gap-2">
+                <p className="text-[12px] font-extrabold text-gray-600">
+                  Nota para
+                </p>
+                <span className="max-w-50 truncate rounded-xl bg-gray-100 px-3 py-1 text-[12px] font-extrabold text-gray-800">
+                  {editandoNombre}
+                </span>
+              </div>
+              <textarea
+                value={comentarioTmp}
+                onChange={(e) => setComentarioTmp(e.target.value)}
+                placeholder="Ej: sin sal, sin cebolla..."
+                rows={2}
+                className="mt-2 w-full resize-none rounded-2xl border border-gray-200 bg-[#fafafa] p-3 text-[13px] outline-none focus:border-trego-orange transition-colors"
+              />
+              <div className="mt-3 flex gap-2">
+                <button
+                  type="button"
+                  onClick={cancelarEdicion}
+                  className="flex-1 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-[13px] font-extrabold text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={guardarComentario}
+                  className="flex-1 rounded-full bg-trego-orange px-4 py-2.5 text-[13px] font-extrabold text-white shadow-sm hover:bg-orange-600 active:scale-[0.99] transition-colors"
+                >
+                  Guardar nota
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={realizarPedido}
-              disabled={carritoVacio}
-              className="w-full rounded-full bg-trego-orange py-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-orange-600 active:scale-[0.99] disabled:opacity-50 transition-colors"
-            >
-              {direccionSeleccionada ? "Realizar pago" : "Realizar pedido"}
-            </button>
-          </div>
-        )}
-
-        {editandoIndex !== null && (
-          <div className="mt-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-            <div className="mb-2 flex items-center gap-2">
-              <p className="text-[12px] font-extrabold text-gray-600">
-                Nota para
-              </p>
-              <span className="max-w-50 truncate rounded-xl bg-gray-100 px-3 py-1 text-[12px] font-extrabold text-gray-800">
-                {editandoNombre}
-              </span>
-            </div>
-            <textarea
-              value={comentarioTmp}
-              onChange={(e) => setComentarioTmp(e.target.value)}
-              placeholder="Ej: sin sal, sin cebolla..."
-              rows={2}
-              className="mt-2 w-full resize-none rounded-2xl border border-gray-200 bg-[#fafafa] p-3 text-[13px] outline-none focus:border-trego-orange transition-colors"
-            />
-            <div className="mt-3 flex gap-2">
+          ) : (
+            <div className="mt-4 rounded-2xl border border-orange-100 bg-[#fff8f4] px-4 pt-2 pb-4">
+              <div className="flex pb-2 items-center justify-between">
+                <p className="text-[11px] font-bold uppercase tracking-wide text-orange-400">
+                  Total del pedido
+                </p>
+                <p className="text-[20px] font-extrabold text-gray-900">
+                  {formatearMoneda(total)}
+                </p>
+              </div>
               <button
                 type="button"
-                onClick={cancelarEdicion}
-                className="flex-1 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-[13px] font-extrabold text-gray-700 hover:bg-gray-50 transition-colors"
+                onClick={realizarPedido}
+                disabled={carritoVacio}
+                className="w-full rounded-full bg-trego-orange py-3 text-[13px] font-extrabold text-white shadow-sm hover:bg-orange-600 active:scale-[0.99] disabled:opacity-50 transition-colors"
               >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={guardarComentario}
-                className="flex-1 rounded-full bg-trego-orange px-4 py-2.5 text-[13px] font-extrabold text-white shadow-sm hover:bg-orange-600 active:scale-[0.99] transition-colors"
-              >
-                Guardar nota
+                {direccionSeleccionada ? "Realizar pago" : "Realizar pedido"}
               </button>
             </div>
-          </div>
-        )}
+          ))}
       </div>
     </ModalBase>
   );
