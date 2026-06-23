@@ -2,7 +2,10 @@ name: Sync fork with upstream
 
 # Mantiene la rama Master de este fork (neimex23/Trego-Web)
 # sincronizada con el repositorio original Pino3001/Trego-Web.
-# Estrategia: fast-forward only (nunca pisa commits propios).
+# Estrategia: trae los commits del upstream conservando tus commits propios.
+#   - Si solo estás "behind": fast-forward.
+#   - Si divergiste (tenés commits propios): merge automático del upstream.
+#   - Solo se detiene si hay conflictos reales que requieren resolución manual.
 
 on:
   schedule:
@@ -28,9 +31,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Sync Master with upstream (fast-forward only)
+      - name: Sync Master with upstream (merge, conserva commits propios)
         run: |
           set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git remote add upstream https://github.com/Pino3001/Trego-Web.git
           git fetch upstream Master
 
@@ -42,15 +48,19 @@ jobs:
             exit 0
           fi
 
-          # Verifica que sea un avance limpio (fast-forward).
           if git merge-base --is-ancestor "$LOCAL" "$REMOTE"; then
+            # Solo estabas behind: avance limpio.
             echo "Aplicando fast-forward hacia upstream/Master..."
             git merge --ff-only upstream/Master
-            git push origin Master
-            echo "Master actualizada correctamente."
           else
-            echo "::warning::Las ramas divergieron: no es posible un fast-forward."
-            echo "Tu Master tiene commits propios que no están en el upstream."
-            echo "Resolvé el merge/rebase manualmente. No se hicieron cambios."
-            exit 1
+            # Divergiste: merge automático conservando tus commits propios.
+            echo "Las ramas divergieron. Haciendo merge automático del upstream..."
+            if ! git merge --no-edit upstream/Master; then
+              git merge --abort || true
+              echo "::error::Conflictos al fusionar upstream/Master. Resolvé manualmente."
+              exit 1
+            fi
           fi
+
+          git push origin Master
+          echo "Master actualizada correctamente."
