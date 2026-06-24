@@ -1,5 +1,6 @@
 import React from "react";
 import type { DTOProducto } from "../../../data/DTOProducto.js";
+import { obtenerThumbnail } from "../utilitis/cloudinaryUtilitis.js";
 
 // ---------------------------------------------------------------------------
 // Props
@@ -156,7 +157,7 @@ const OfertaRestoCard: React.FC<OfertaRestoCardProps> = ({
         <div className="w-14 h-14 rounded-[10px] bg-[#E1F5EE] shrink-0 flex items-center justify-center overflow-hidden">
           {urlImagen ? (
             <img
-              src={urlImagen}
+              src={obtenerThumbnail(urlImagen)}
               alt={nombre ?? "Imagen del producto"}
               className="w-full h-full object-cover"
             />

@@ -188,6 +188,7 @@ export default function LoginRestaurante() {
                   placeholder="Correo electrónico"
                   type="email"
                   colorStyle="trego-restaurante"
+                  
                 />
 
                 <TextInput
@@ -196,6 +197,7 @@ export default function LoginRestaurante() {
                   placeholder="Contraseña"
                   type="password"
                   colorStyle="trego-restaurante"
+                  onEnter={solicitarInicio}
                 />
 
                 <button

@@ -151,6 +151,7 @@ export default function RecuperarContraseñaPage({
                   placeholder="Correo electrónico"
                   type="email"
                   colorStyle={cfg.colorStyle}
+                  onEnter={enviarSolicitud}
                 />
 
                 <button

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { RefreshCw } from "lucide-react";
 
 export const RESTAURANTE_PAGE_CLASS =
-  "flex-1 w-full min-h-0 min-w-0 p-3 sm:p-4 md:p-8 overflow-y-auto overflow-x-hidden bg-gray-50 text-gray-800 font-sans";
+  "flex-1 w-full min-w-0 p-3 sm:p-4 md:p-8 overflow-y-auto overflow-x-hidden bg-gray-50 text-gray-800 font-sans";
 
 interface RestaurantePageHeaderProps {
   titulo: string;

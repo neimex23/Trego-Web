@@ -157,7 +157,7 @@ export default function ModificarProducto({
     const previewUrl = URL.createObjectURL(file);
     setFoto({ file, previewUrl, uploadState: "uploading", cloudUrl: null });
 
-    subirImagen(file, previewUrl); // No retorna nada → void
+    subirImagen(file, previewUrl);
   };
 
   /**
@@ -165,6 +165,7 @@ export default function ModificarProducto({
    * @param file archivo de donde se obtendran los datos para subir la imagen a cloudinary y firmar en el backend
    * @param previewUrl Preview para mostrar la imagen subida en pantalla del usuario
    */
+
   async function subirImagen(file: File, previewUrl: string) {
     try {
       const nombreSinExtension =
@@ -190,10 +191,18 @@ export default function ModificarProducto({
 
       const cloudinaryData = await cloudinaryRes.json();
 
+      const urlOriginal = cloudinaryData.secure_url;
+
+      // Recortamos la imagen para que se vea de forma mas optimizada desde android
+      const urlOptimizada = urlOriginal.replace(
+        "/upload/",
+        "/upload/w_800,h_350,c_fill,g_auto/",
+      );
+
       setFoto((prev) => ({
         ...prev,
         uploadState: "done",
-        cloudUrl: cloudinaryData.secure_url,
+        cloudUrl: urlOptimizada, // Usamos la optimizada
       }));
     } catch (error) {
       console.error("Error en el proceso de imagen:", error);
@@ -412,7 +421,7 @@ export default function ModificarProducto({
 
   return (
     <>
-      <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 md:px-10 py-6 sm:py-8 min-h-full bg-gray-75">
+      <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 md:px-10 py-6 sm:py-8 bg-gray-75">
         <div className="flex items-center justify-between mb-2 py-4 border-b border-gray-100">
           <button
             type="button"

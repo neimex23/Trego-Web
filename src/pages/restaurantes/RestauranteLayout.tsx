@@ -360,7 +360,7 @@ export default function RestauranteLayout() {
           onCloseMobile={() => setMenuNavegacionAbierto(false)}
         />
 
-        <main className="flex-1 flex flex-col overflow-y-auto relative">
+        <main className="flex-1 flex flex-col overflow-y-auto relative pb-6">
           <Outlet />
         </main>
       </div>

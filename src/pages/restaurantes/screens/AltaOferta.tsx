@@ -94,18 +94,27 @@ export default function AltaOferta({
       formData.append("signature", datosBack.firma);
       formData.append("public_id", datosBack.publicId);
 
-      const res = await fetch(datosBack.uploadUrl, {
+      const cloudinaryRes = await fetch(datosBack.uploadUrl, {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Cloudinary rechazó la imagen");
+      if (!cloudinaryRes.ok) throw new Error("Cloudinary rechazó la imagen");
 
-      const data = await res.json();
+      const cloudinaryData = await cloudinaryRes.json();
+
+      const urlOriginal = cloudinaryData.secure_url;
+
+      // Recortamos la imagen para que se vea de forma mas optimizada desde android
+      const urlOptimizada = urlOriginal.replace(
+        "/upload/",
+        "/upload/w_200,h_200,c_fill,g_auto/",
+      );
+
       setFoto((prev) => ({
         ...prev,
         uploadState: "done",
-        cloudUrl: data.secure_url,
+        cloudUrl: urlOptimizada, // Usamos la optimizada
       }));
     } catch (err) {
       console.error("Error al subir imagen:", err);

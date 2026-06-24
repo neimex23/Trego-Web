@@ -183,6 +183,7 @@ export default function CambiarContraseñaPage({
               placeholder="Confirmar nueva contraseña"
               type="password"
               colorStyle={cfg.colorStyle}
+              onEnter={guardar}
             />
 
             <button

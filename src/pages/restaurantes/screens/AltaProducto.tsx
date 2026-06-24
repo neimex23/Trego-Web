@@ -237,7 +237,7 @@ export default function AltaProducto() {
 
   return (
     <>
-      <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 md:px-10 py-6 sm:py-8 min-h-full bg-gray-50">
+      <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 md:px-10 py-6 sm:py-8 bg-gray-50">
         <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2">
           Alta Producto
         </h1>

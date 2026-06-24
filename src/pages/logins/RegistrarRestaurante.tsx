@@ -259,6 +259,7 @@ export default function RegistrarRestaurante() {
                     colorStyle="trego-restaurante"
                     showStrength
                     onChangeSeguridad={setSeguridadContra}
+                    onEnter={solicitarRegistro}
                   />
 
                   <TextInput
@@ -268,6 +269,7 @@ export default function RegistrarRestaurante() {
                     type="password"
                     colorStyle="trego-restaurante"
                     showStrength
+                    onEnter={solicitarRegistro}
                   />
                 </div>
 

@@ -54,3 +54,10 @@ export const obtenerImagenOfertaCard = (url: string | undefined) => {
 export const obtenerImagenRestauranteCard = (url: string | undefined) => {
   return optimizarImagen(url, 120, 120);
 };
+
+/**
+ * Para la vista principal delbanner de foto portada restaurante (800x350)
+ */
+export const obtenerBannerPortada = (url: string | undefined) => {
+  return optimizarImagen(url, 800, 400);
+};

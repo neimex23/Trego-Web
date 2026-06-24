@@ -27,7 +27,10 @@ import {
   obtenerFirmaCloudinary,
   modificarRestaurantePerfil,
 } from "../../api/apiRestaurante.js";
-
+import {
+  obtenerBannerPortada,
+  obtenerThumbnail,
+} from "../restaurantes/utilitis/cloudinaryUtilitis.js";
 
 function formatTime(t?: string | null): string {
   return t?.slice(0, 5) ?? "";
@@ -59,7 +62,6 @@ function StarRating({ value }: StarRatingProps) {
     </span>
   );
 }
-
 
 interface InfoFieldProps {
   icon: React.ReactNode;
@@ -114,7 +116,6 @@ function InfoField({
     </div>
   );
 }
-
 
 export default function PerfilRestaurante() {
   const { restaurante, loading, error, recargar } = useRestauranteActual({
@@ -257,7 +258,7 @@ export default function PerfilRestaurante() {
 
     setIsSaving(true);
     try {
-      console.log("Esto es lo que manda: ", restauranteEdit)
+      console.log("Esto es lo que manda: ", restauranteEdit);
       await modificarRestaurantePerfil(restauranteEdit);
       if (recargar) {
         await recargar();
@@ -300,7 +301,7 @@ export default function PerfilRestaurante() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 lg:p-8">
+    <div className="bg-slate-50 p-4 lg:p-8 pb-8">
       <div className="max-w-4xl mx-auto space-y-4">
         <div className="mb-2">
           <h1 className="text-2xl font-bold text-center text-slate-900 tracking-tight">
@@ -309,10 +310,10 @@ export default function PerfilRestaurante() {
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
-          <div className="relative h-48 border-2 border-trego-restaurante rounded-t-2xl">
+          <div className="relative h-48 sm:h-64 md:h-75 border-2 border-trego-restaurante rounded-t-2xl">
             {coverSrc ? (
               <img
-                src={coverSrc}
+                src={obtenerBannerPortada(coverSrc)}
                 alt="Portada"
                 className="w-full h-full object-cover rounded-t-xl"
               />
@@ -375,7 +376,7 @@ export default function PerfilRestaurante() {
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-4 border-white shadow-md bg-[#EAF3EE] flex items-center justify-center overflow-hidden">
                   {profileSrc ? (
                     <img
-                      src={profileSrc}
+                      src={obtenerThumbnail(profileSrc)}
                       alt="Logo"
                       className="w-full h-full object-cover"
                     />
@@ -586,7 +587,8 @@ export default function PerfilRestaurante() {
                 <div className="pl-9 relative">
                   <select
                     value={
-                      restauranteEdit?.categoria ?? EnumCategoriaRestaurante.Otros
+                      restauranteEdit?.categoria ??
+                      EnumCategoriaRestaurante.Otros
                     }
                     onChange={(e) =>
                       setRestauranteEdit((prev) => ({

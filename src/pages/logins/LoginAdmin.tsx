@@ -179,6 +179,7 @@ export default function LoginAdmin() {
                   placeholder="Contraseña"
                   type="password"
                   colorStyle="trego-admin"
+                  onEnter={solicitarInicio}
                 />
 
                 {/* falta endpoint backend: POST /api/auth/admin/verificar-otp (y login admin con OTP) */}

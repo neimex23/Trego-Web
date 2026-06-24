@@ -1,5 +1,6 @@
 import type { DTOProducto } from "../../../data/DTOProducto.js";
 import { EnumTipoProducto } from "../../../data/EnumTipoProducto.js";
+import { obtenerThumbnail } from "../utilitis/cloudinaryUtilitis.js";
 
 const TIPO_STYLES = {
   Plato: {
@@ -49,7 +50,7 @@ export default function ProductoCard({ producto, onClick }: ProductoCardPropd) {
     .filter(Boolean);
 
   const esPlato = producto.tipo === EnumTipoProducto.Plato;
-  const tipoStyle = TIPO_STYLES[producto.tipo] || TIPO_DEFAULT;
+  const tipoStyle = TIPO_STYLES[producto.tipo ?? EnumTipoProducto.Articulo] || TIPO_DEFAULT;
   const noDisponible = producto.disponible === false;
 
   return (
@@ -76,7 +77,7 @@ export default function ProductoCard({ producto, onClick }: ProductoCardPropd) {
       >
         {producto.urlImagen ? (
           <img
-            src={producto.urlImagen}
+            src={obtenerThumbnail(producto?.urlImagen)}
             alt={producto.nombre}
             className="w-full h-full object-cover"
           />

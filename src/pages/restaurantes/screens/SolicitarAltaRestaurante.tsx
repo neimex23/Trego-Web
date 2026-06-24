@@ -127,7 +127,6 @@ export default function SolicitarAltaRestaurante() {
       formData.append("signature", datosBack.firma); // 'firma' mapea a 'signature'
       formData.append("public_id", datosBack.publicId); // 'publicId' mapea a 'public_id'
 
-      //Subida directa usando la URL exacta
       const cloudinaryRes = await fetch(datosBack.uploadUrl, {
         method: "POST",
         body: formData,
@@ -137,11 +136,27 @@ export default function SolicitarAltaRestaurante() {
 
       const cloudinaryData = await cloudinaryRes.json();
 
+      const urlOriginal = cloudinaryData.secure_url;
+
+      let urlOptimizada = urlOriginal;
+
+      if (field === "portada") {
+        urlOptimizada = urlOriginal.replace(
+          "/upload/",
+          "/upload/w_800,h_350,c_fill,g_auto/",
+        );
+      } else {
+        urlOptimizada = urlOriginal.replace(
+          "/upload/",
+          "/upload/w_200,h_200,c_fill,g_auto/",
+        );
+      }
+
       //Guardamos la URL segura final en tu estado
       setter((prev) => ({
         ...prev,
         uploadState: "done",
-        cloudUrl: cloudinaryData.secure_url, // Esta URL es la que mandamos al backend en el submit
+        cloudUrl: urlOptimizada, // Usamos la optimizada
       }));
     } catch (error) {
       console.error("Error en el proceso de imagen:", error);
@@ -184,7 +199,8 @@ export default function SolicitarAltaRestaurante() {
     if (!form.descripcion.trim()) {
       newErrors.descripcion = "La descripción es requerida";
     } else if (form.descripcion.trim().length < 20) {
-      newErrors.descripcion = "La descripción debe tener al menos 20 caracteres";
+      newErrors.descripcion =
+        "La descripción debe tener al menos 20 caracteres";
     }
 
     if (!direccionSeleccionada) {
@@ -204,9 +220,7 @@ export default function SolicitarAltaRestaurante() {
     setErrors(newErrors);
     setImageErrors(imgErrors);
 
-    return (
-      Object.keys(newErrors).length === 0 && !perfilError && !portadaError
-    );
+    return Object.keys(newErrors).length === 0 && !perfilError && !portadaError;
   };
 
   // ── Submit ────────────────────────────────────────────────────────────────
@@ -440,7 +454,10 @@ export default function SolicitarAltaRestaurante() {
                           setDireccionSeleccionada(dirCompletada);
                           setForm((prev) => ({
                             ...prev,
-                            direccion: [dirCompletada.calle, dirCompletada.numero]
+                            direccion: [
+                              dirCompletada.calle,
+                              dirCompletada.numero,
+                            ]
                               .filter(Boolean)
                               .join(" "),
                             numeroP: dirCompletada.numero
@@ -479,7 +496,9 @@ export default function SolicitarAltaRestaurante() {
                             setEsquinaSeleccionada(dirCompletada);
                             setForm((prev) => ({
                               ...prev,
-                              esquina: dirCompletada.calle || dirCompletada.direccionCompleta,
+                              esquina:
+                                dirCompletada.calle ||
+                                dirCompletada.direccionCompleta,
                             }));
                           }}
                         />

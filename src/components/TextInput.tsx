@@ -13,6 +13,7 @@ interface InputProps {
   showStrength?: boolean;
   onChangeSeguridad?: (value: SeguridadPassword) => void;
   error?: string;
+  onEnter?: () => void;
 }
 export type SeguridadPassword = "Debil" | "Regular" | "Buena" | "Fuerte";
 
@@ -64,6 +65,7 @@ export const TextInput = ({
   onChangeSeguridad,
   error,
   id,
+  onEnter,
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -83,6 +85,13 @@ export const TextInput = ({
     }
   }, [onChangeSeguridad, strength?.label, value]);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && onEnter) {
+      e.preventDefault();
+      onEnter();
+    }
+  };
+
   return (
     <div className={`relative w-full ${className}`}>
       <input
@@ -92,6 +101,7 @@ export const TextInput = ({
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
+        onKeyDown={handleKeyDown}
         className={`peer w-full h-12 border rounded-full px-5 outline-none
                     focus:ring-1 transition-all duration-200 placeholder-transparent
                     ${

@@ -11,6 +11,7 @@ import {
   type PedidoConFechaHora,
 } from "../../../utils/estadisticasPedidosPorFecha.js";
 import { RESTAURANTE_PAGE_CLASS } from "../componentes/RestaurantePageShell.js";
+import { obtenerThumbnail } from "../utilitis/cloudinaryUtilitis.js";
 
 export type VistaEstadisticas = "platos" | "fechas" | "monto";
 
@@ -117,7 +118,7 @@ function TablaPlatos({ productos }: { productos: DTOProductoSimplificado[] }) {
                   <div className="flex items-center gap-3">
                     {producto.urlImagen ? (
                       <img
-                        src={producto.urlImagen}
+                        src={obtenerThumbnail(producto.urlImagen)}
                         alt={producto.nombre ?? "Producto"}
                         className="h-12 w-12 rounded-lg object-cover"
                       />
@@ -152,11 +153,7 @@ function TablaPlatos({ productos }: { productos: DTOProductoSimplificado[] }) {
   );
 }
 
-function TablaPedidosPorFecha({
-  pedidos,
-}: {
-  pedidos: PedidoConFechaHora[];
-}) {
+function TablaPedidosPorFecha({ pedidos }: { pedidos: PedidoConFechaHora[] }) {
   if (pedidos.length === 0) {
     return (
       <p className="py-8 text-center text-gray-500">
@@ -186,7 +183,9 @@ function TablaPedidosPorFecha({
               <td className="py-3 pr-4 font-medium text-gray-800">{fecha}</td>
               <td className="py-3 pr-4 text-gray-700">{horario}</td>
               <td className="py-3 pr-4 text-gray-700">#{pedido.idPedido}</td>
-              <td className="py-3 pr-4 text-gray-600">{pedido.estado ?? "-"}</td>
+              <td className="py-3 pr-4 text-gray-600">
+                {pedido.estado ?? "-"}
+              </td>
               <td className="py-3 text-gray-700">
                 {formatearMoneda(pedido.total ?? 0)}
               </td>
@@ -198,11 +197,7 @@ function TablaPedidosPorFecha({
   );
 }
 
-function TablaMontoPromedio({
-  ingresos,
-}: {
-  ingresos: [string, number][];
-}) {
+function TablaMontoPromedio({ ingresos }: { ingresos: [string, number][] }) {
   if (ingresos.length === 0) {
     return (
       <p className="py-8 text-center text-gray-500">
@@ -228,7 +223,10 @@ function TablaMontoPromedio({
             const porcentaje = Math.round((promedio / maxMonto) * 100);
 
             return (
-              <tr key={fecha} className="border-b border-gray-100 last:border-0">
+              <tr
+                key={fecha}
+                className="border-b border-gray-100 last:border-0"
+              >
                 <td className="py-3 pr-4 font-medium text-gray-800">
                   {formatearFechaCorta(fecha)}
                 </td>
@@ -311,7 +309,9 @@ export default function EstadisticasPage({ vista }: EstadisticasPageProps) {
   return (
     <div className={RESTAURANTE_PAGE_CLASS}>
       <div className="mb-5 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{TITULOS[vista]}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+          {TITULOS[vista]}
+        </h1>
         <p className="mt-1 text-sm text-gray-500">
           {vista === "fechas"
             ? "Listado de pedidos del período con fecha y horario de creación."

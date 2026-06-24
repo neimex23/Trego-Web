@@ -11,6 +11,7 @@ import {
 import { DateTimeInput } from "../DateTimeInput.js";
 import { useEffect, useRef, useState } from "react";
 import { getInitials } from "../../utils/funcionesFormateo.js";
+import { obtenerThumbnail } from "../../pages/restaurantes/utilitis/cloudinaryUtilitis.js";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -185,7 +186,7 @@ export default function MenuUsuario({
       <div className="flex items-center gap-3.5 p-4 pb-3.5 border-b border-gray-100">
         {avatarUrl ? (
           <img
-            src={avatarUrl}
+            src={obtenerThumbnail(avatarUrl)}
             alt={nombre}
             className="w-22 h-22 rounded-full object-cover shrink-0"
           />
@@ -381,7 +382,7 @@ export default function MenuUsuario({
             </span>
           </button>
         ) : undefined}
-        
+
         {/* Cerrar sesión */}
         <button
           type="button"
