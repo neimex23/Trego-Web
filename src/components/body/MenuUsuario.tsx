@@ -30,6 +30,8 @@ interface MenuUsuarioProps {
   horaApertura?: string | undefined;
   onChangeHoraCierre?: ((item: string | undefined) => void) | undefined;
   onChangeHoraApertura?: ((item: string | undefined) => void) | undefined;
+  cierreProgramado?: string | undefined;
+  onChangeCierreProgramado?: ((item: string) => void) | undefined;
   verPerfil?: boolean;
   cambiarContrasenia?: boolean;
   verHistorial?: boolean;
@@ -50,6 +52,8 @@ export default function MenuUsuario({
   horaApertura,
   onChangeHoraCierre,
   onChangeHoraApertura,
+  cierreProgramado,
+  onChangeCierreProgramado,
   onCambiarContrasenia,
   verPerfil,
   cambiarContrasenia,
@@ -65,6 +69,14 @@ export default function MenuUsuario({
   );
   const cierreRef = useRef<HTMLInputElement>(null);
   const aperturaRef = useRef<HTMLInputElement>(null);
+  const cierreProgRef = useRef<HTMLInputElement>(null);
+
+  // Estado del cierre programado (instante exacto, editable de forma independiente)
+  const [isEditingCierreProg, setIsEditingCierreProg] = useState(false);
+  const [errorCierreProg, setErrorCierreProg] = useState<string | null>(null);
+  const [internalCierreProg, setInternalCierreProg] = useState(
+    cierreProgramado ?? "",
+  );
 
   // Sincronizar estado interno cuando la prop cambia (ej. carga inicial)
   useEffect(() => {
@@ -74,6 +86,34 @@ export default function MenuUsuario({
   useEffect(() => {
     setInternalHoraApertura(horaApertura ?? "");
   }, [horaApertura]);
+
+  useEffect(() => {
+    if (!isEditingCierreProg) {
+      setInternalCierreProg(cierreProgramado ?? "");
+    }
+  }, [cierreProgramado, isEditingCierreProg]);
+
+  const handleCierreProgChange = (value: string) => {
+    setInternalCierreProg(value);
+    setErrorCierreProg(null);
+  };
+
+  const handleSaveCierreProg = () => {
+    if (!internalCierreProg || internalCierreProg.trim() === "") {
+      setErrorCierreProg("El cierre programado no puede estar vacío");
+      return;
+    }
+    onChangeCierreProgramado?.(internalCierreProg);
+    setIsEditingCierreProg(false);
+    setErrorCierreProg(null);
+  };
+
+  const startEditCierreProg = () => {
+    setIsEditingCierreProg(true);
+    setTimeout(() => {
+      cierreProgRef.current?.focus();
+    }, 50);
+  };
 
   // Validar antes de intentar abrir
   const handleToggle = () => {
@@ -253,6 +293,48 @@ export default function MenuUsuario({
                 </button>
               </div>
             </div>
+            {restauranteAbierto && (
+              <div className="flex flex-row w-full gap-2 px-3 py-2 items-center">
+                <div className="w-full">
+                  <DateTimeInput
+                    ref={cierreProgRef}
+                    mode="datetime-local"
+                    label="Cierre programado"
+                    onChange={handleCierreProgChange}
+                    value={internalCierreProg}
+                    disabled={!isEditingCierreProg}
+                    error={errorCierreProg ?? false}
+                    className="text-sm px-1 py-1"
+                  />
+                </div>
+                <div className="shrink-0">
+                  <button
+                    type="button"
+                    onClick={
+                      isEditingCierreProg
+                        ? handleSaveCierreProg
+                        : startEditCierreProg
+                    }
+                    className={`flex items-center justify-center transition-colors ${
+                      isEditingCierreProg
+                        ? "text-emerald-600 hover:text-emerald-700"
+                        : "text-trego-restaurante hover:opacity-80"
+                    }`}
+                    aria-label={
+                      isEditingCierreProg
+                        ? "Guardar cierre programado"
+                        : "Editar cierre programado"
+                    }
+                  >
+                    {isEditingCierreProg ? (
+                      <Check size={32} />
+                    ) : (
+                      <Edit size={32} />
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
             <hr className="border-gray-100 my-1 mx-1" />
           </>
         )}

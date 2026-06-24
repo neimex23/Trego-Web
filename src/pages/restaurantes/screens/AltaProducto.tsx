@@ -81,7 +81,7 @@ export default function AltaProducto() {
     const previewUrl = URL.createObjectURL(file);
     setFoto({ file, previewUrl, uploadState: "uploading", cloudUrl: null });
 
-    subirImagen(file, previewUrl); // No retorna nada → void
+    subirImagen(file, previewUrl);
   };
 
   async function subirImagen(file: File, previewUrl: string) {
@@ -109,10 +109,18 @@ export default function AltaProducto() {
 
       const cloudinaryData = await cloudinaryRes.json();
 
+      const urlOriginal = cloudinaryData.secure_url;
+
+      // Recortamos la imagen para que se vea de forma mas optimizada desde android
+      const urlOptimizada = urlOriginal.replace(
+        "/upload/",
+        "/upload/w_800,h_350,c_fill,g_auto/",
+      );
+
       setFoto((prev) => ({
         ...prev,
         uploadState: "done",
-        cloudUrl: cloudinaryData.secure_url,
+        cloudUrl: urlOptimizada, // Usamos la optimizada
       }));
     } catch (error) {
       console.error("Error en el proceso de imagen:", error);
@@ -230,7 +238,9 @@ export default function AltaProducto() {
   return (
     <>
       <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 md:px-10 py-6 sm:py-8 min-h-full bg-gray-50">
-        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2">Alta Producto</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2">
+          Alta Producto
+        </h1>
 
         {/* SUCCESS */}
         {step === "SUCCESS" && (

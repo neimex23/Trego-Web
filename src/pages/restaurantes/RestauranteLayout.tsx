@@ -4,6 +4,7 @@ import Sidebar from "../../components/body/Sidebar.js";
 import { useEffect, useRef, useState } from "react";
 import {
   abrirLocal,
+  actualizarCierreProgramado,
   actualizarHoraCierre,
   cerrarLocal,
   obtenerActual,
@@ -82,9 +83,11 @@ export default function RestauranteLayout() {
   const [horaApertura, setHoraApertura] = useState<string | undefined>(
     undefined,
   );
+  const [cierreProgramado, setCierreProgramado] = useState<string | null>(null);
   const [isLoadingToggle, setIsLoadingToggle] = useState(false);
   const [cambio, setCambio] = useState<boolean>(false);
   const [mostrarAvisoCierre, setMostrarAvisoCierre] = useState(false);
+  const [mostrarAvisoCerrado, setMostrarAvisoCerrado] = useState(false);
   const [avisoDescartado, setAvisoDescartado] = useState(false);
   const [tiempoRestante, setTiempoRestante] = useState<{
     minutos: number;
@@ -141,6 +144,7 @@ export default function RestauranteLayout() {
       try {
         const data = await obtenerActual();
         setRestauranteAbierto(data.abierto ?? false);
+        setCierreProgramado(data.cierreProgramado ?? null);
         if (data.horaCierre) {
           const horaSinSegundos = data.horaCierre.slice(0, 5);
           const horaAperturaSinSegundos = data.horaApertura?.slice(0, 5);
@@ -180,6 +184,7 @@ export default function RestauranteLayout() {
       if (restauranteAbierto) {
         await cerrarLocal();
         setRestauranteAbierto(false);
+        setCierreProgramado(null);
       } else {
         const hora: DTOAbrirCerrarLocalRequest = {
           horaApertura: aperturaEfectiva ?? "", // 👇 Usamos la efectiva aquí
@@ -191,6 +196,7 @@ export default function RestauranteLayout() {
         // Sincronizamos el estado de React con lo que ingresó el usuario
         if (horaDesdeMenu !== undefined) setHoraCierre(horaDesdeMenu);
         if (aperturaDesdeMenu !== undefined) setHoraApertura(aperturaDesdeMenu);
+        setCambio(true);
       }
     } catch (error) {
       console.error("Error al alternar estado:", error);
@@ -207,9 +213,23 @@ export default function RestauranteLayout() {
     if (restauranteAbierto && nuevaHora && token && isHabilitado) {
       try {
         await actualizarHoraCierre(nuevaHora);
+        setCambio(true);
       } catch (error) {
         console.error("Error al actualizar la hora de cierre:", error);
       }
+    }
+  };
+
+  // El usuario fija manualmente el instante exacto de cierre. Arranca igual a la
+  // hora de cierre (lo calcula el backend al abrir) pero puede cambiarlo a otra
+  // fecha/hora. Tras guardar, re-fetch para traer el valor confirmado.
+  const handleChangeCierreProgramado = async (nuevoCierre: string) => {
+    if (!restauranteAbierto || !nuevoCierre || !token || !isHabilitado) return;
+    try {
+      await actualizarCierreProgramado(nuevoCierre);
+      setCambio(true);
+    } catch (error) {
+      console.error("Error al actualizar el cierre programado:", error);
     }
   };
 
@@ -237,29 +257,19 @@ export default function RestauranteLayout() {
   };
 
   useEffect(() => {
-    if (!restauranteAbierto || !horaCierre) {
+    if (!restauranteAbierto || !cierreProgramado) {
       setMostrarAvisoCierre(false);
       setTiempoRestante(null);
       return;
     }
 
+    // El backend persiste cierreProgramado como instante absoluto
     const calcularRestante = () => {
-      const partes = horaCierre.split(":");
-      if (partes.length !== 2) return null;
-      const h = Number(partes[0]);
-      const m = Number(partes[1]);
-      if (isNaN(h) || isNaN(m)) return null;
-
-      const ahora = new Date();
-      const cierreHoy = new Date(ahora);
-      cierreHoy.setHours(h, m, 0, 0);
-
-      if (cierreHoy.getTime() < ahora.getTime()) {
-        cierreHoy.setDate(cierreHoy.getDate() + 1);
-      }
+      const cierre = new Date(cierreProgramado);
+      if (isNaN(cierre.getTime())) return null;
 
       const diffSegundos = Math.floor(
-        (cierreHoy.getTime() - ahora.getTime()) / 1000,
+        (cierre.getTime() - Date.now()) / 1000,
       );
       return diffSegundos;
     };
@@ -295,6 +305,8 @@ export default function RestauranteLayout() {
         } finally {
           setRestauranteAbierto(false);
           setCambio(true);
+          setMostrarAvisoCierre(false);
+          setMostrarAvisoCerrado(true);
         }
       }
     };
@@ -306,11 +318,11 @@ export default function RestauranteLayout() {
     return () => {
       if (intervalo) clearInterval(intervalo);
     };
-  }, [restauranteAbierto, horaCierre, avisoDescartado]);
+  }, [restauranteAbierto, cierreProgramado, avisoDescartado]);
 
   useEffect(() => {
     setAvisoDescartado(false);
-  }, [restauranteAbierto, horaCierre]);
+  }, [restauranteAbierto, cierreProgramado]);
 
   useEffect(() => {
     setMenuNavegacionAbierto(false);
@@ -318,7 +330,7 @@ export default function RestauranteLayout() {
 
   // Si pasa todas las reglas, renderizamos la pantalla normal
   return (
-    <div className="h-[100dvh] w-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-dvh w-screen flex flex-col bg-gray-50 overflow-hidden">
       <Header
         verPerfil
         tipoUser="Restaurante"
@@ -327,11 +339,14 @@ export default function RestauranteLayout() {
         perfilEmail={perfilEmail}
         fotoPerfil={fotoPerfil}
         onCambiarContraseña={() => navigate("/restaurantes/perfil/contraseña")}
+        cambiarContrasenia
         onVerPerfil={() => navigate("/perfil/restaurante")}
         horaCierre={horaCierre}
         onChangeHoraCierre={handleChangeHoraCierre}
         horaApertura={horaApertura}
         onChangeHoraApertura={setHoraApertura}
+        cierreProgramado={cierreProgramado ? cierreProgramado.slice(0, 16) : undefined}
+        onChangeCierreProgramado={handleChangeCierreProgramado}
         restauranteAbierto={restauranteAbierto}
         onToggleRestauranteAbierto={handleToggleRestaurante}
         onLogout={handleLogout}
@@ -361,7 +376,15 @@ export default function RestauranteLayout() {
               {tiempoRestante.segundos.toString().padStart(2, "0")}
             </p>
             <p className="text-sm text-gray-600 mb-4">
-              Se cerrará automáticamente al llegar a las {horaCierre} hs.
+              Se cerrará automáticamente al llegar a las{" "}
+              {cierreProgramado
+                ? new Date(cierreProgramado).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })
+                : horaCierre}{" "}
+              hs.
             </p>
             <button
               onClick={() => {
@@ -369,6 +392,26 @@ export default function RestauranteLayout() {
                 setAvisoDescartado(true);
               }}
               className="w-full py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition-colors"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
+      {mostrarAvisoCerrado && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 bg-opacity-50">
+          <div className="bg-white rounded-2xl shadow-xl w-[min(20rem,calc(100vw-2rem))] p-5 sm:p-6 text-center">
+            <div className="text-4xl mb-4">🔒</div>
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+              El local se cerró
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Se alcanzó el horario de cierre programado y el local dejó de estar
+              visible para los clientes.
+            </p>
+            <button
+              onClick={() => setMostrarAvisoCerrado(false)}
+              className="w-full py-2 bg-trego-restaurante hover:opacity-90 text-white font-medium rounded-xl transition-colors"
             >
               Entendido
             </button>

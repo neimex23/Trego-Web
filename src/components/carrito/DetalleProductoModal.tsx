@@ -7,6 +7,7 @@ import type { DTOProductoPedido } from "../../data/DTOProductoPedido.js";
 import { EnumTipoProducto } from "../../data/EnumTipoProducto.js";
 import { DetalleCombo } from "./DetalleCombo.js";
 import { obtenerPrecios } from "../../utils/productos.js";
+import { obtenerThumbnail } from "../../pages/restaurantes/utilitis/cloudinaryUtilitis.js";
 
 function obtenerIngredientes(producto: DTOProducto | null): string[] {
   if (producto?.ingredientes?.length) {
@@ -109,7 +110,7 @@ export default function DetalleProductoModal(): React.JSX.Element {
         <div className="flex gap-4 items-start justify-between">
           <div className="flex gap-4 items-start min-w-0 flex-1">
             <img
-              src={producto?.urlImagen}
+              src={obtenerThumbnail(producto?.urlImagen ?? "")}
               alt={producto?.nombre || "Producto"}
               className="h-20 w-20 shrink-0 rounded-2xl object-cover bg-gray-100 shadow-sm"
             />

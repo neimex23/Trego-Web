@@ -22,6 +22,7 @@ import {
 import type { UploadState } from "../../components/typos/ImageField.js";
 import { obtenerFirmaCloudinary } from "../../api/apiRestaurante.js";
 import { getInitials } from "../../utils/funcionesFormateo.js";
+import { obtenerThumbnail } from "../restaurantes/utilitis/cloudinaryUtilitis.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -322,7 +323,7 @@ export default function PerfilCliente() {
                   <div className="w-20 h-20 rounded-full bg-orange-100 border-4 border-white shadow-md flex items-center justify-center overflow-hidden">
                     {avatarSrc ? (
                       <img
-                        src={avatarSrc}
+                        src={obtenerThumbnail(avatarSrc)}
                         alt="Foto de perfil"
                         className="w-full h-full object-cover"
                       />

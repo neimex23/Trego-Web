@@ -1,5 +1,6 @@
 import type { DTOProducto } from "../../data/DTOProducto.js";
 import { EnumTipoProducto } from "../../data/EnumTipoProducto.js";
+import { obtenerThumbnail } from "../../pages/restaurantes/utilitis/cloudinaryUtilitis.js";
 import { obtenerPrecios } from "../../utils/productos.js";
 import { DetalleCombo } from "../carrito/DetalleCombo.js";
 import { IconPlus } from "../icons.jsx";
@@ -19,7 +20,7 @@ export default function ProductoMenuCard({
   return (
     <article className="flex items-center gap-4 rounded-2xl border border-gray-200 shadow bg-gray-50 p-3 sm:p-4">
       <img
-        src={urlImagen}
+        src={obtenerThumbnail(urlImagen ?? "")}
         alt={nombre}
         className="h-18 w-18 shrink-0 rounded-xl object-cover bg-gray-50 sm:h-20 sm:w-20"
         loading="lazy"

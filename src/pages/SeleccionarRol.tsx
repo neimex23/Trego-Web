@@ -57,7 +57,7 @@ export default function SeleccionarRol() {
 
   return (
     <>
-      <Header />
+      <Header menuUser={false} />
 
       <main className="mt-10 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-2xl flex flex-col items-center gap-10">

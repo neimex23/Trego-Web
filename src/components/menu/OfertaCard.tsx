@@ -1,4 +1,5 @@
 import type { DTOProducto } from "../../data/DTOProducto.js";
+import {  obtenerImagenOfertaCard } from "../../pages/restaurantes/utilitis/cloudinaryUtilitis.js";
 import { obtenerPrecios, precioConDescuento } from "../../utils/productos.js";
 
 interface OfertaCardProps {
@@ -23,7 +24,7 @@ return (
     >
       <div className="relative w-full overflow-hidden">
         <img
-          src={oferta?.urlImagen || "/placeholder.png"}
+          src={obtenerImagenOfertaCard(oferta?.urlImagen || "/placeholder.png")}
           alt={nombre ?? "Oferta"}
           className="h-32 w-full object-cover transition-transform duration-300 group-hover:scale-105 sm:h-36"
           loading="lazy"

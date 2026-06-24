@@ -1,9 +1,9 @@
 import React, { forwardRef } from "react";
 
 interface DateTimeInputProps {
-  /** 'time' para hora, 'date' para fecha. Por defecto es 'time' */
-  mode?: "time" | "date";
-  /** Valor controlado (Formato 'HH:mm' o 'YYYY-MM-DD') */
+  /** 'time' para hora, 'date' para fecha, 'datetime-local' para fecha y hora. Por defecto es 'time' */
+  mode?: "time" | "date" | "datetime-local";
+  /** Valor controlado (Formato 'HH:mm', 'YYYY-MM-DD' o 'YYYY-MM-DDTHH:mm') */
   value: string;
   /** Callback cuando cambia el valor */
   onChange: (value: string) => void;

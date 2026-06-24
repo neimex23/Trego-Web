@@ -528,6 +528,46 @@ export async function actualizarHoraCierre(cierre: string): Promise<void> {
 }
 
 /**
+ * Fija manualmente el instante exacto de cierre programado del local.
+ * @param cierre - Fecha/hora de cierre en formato datetime-local ("YYYY-MM-DDTHH:mm").
+ * @throws Error con el mensaje del backend si falla (400/404/409).
+ */
+export async function actualizarCierreProgramado(cierre: string): Promise<void> {
+  const response = await fetchConAuth(
+    `${ENDPOINTS.ACTUALIZAR_CIERRE_PROGRAMADO}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ cierreProgramado: cierre }),
+    },
+  );
+
+  if (!response.ok) {
+    let mensaje = `Error ${response.status}`;
+    try {
+      const errorData = await response.json();
+      mensaje =
+        errorData.message || errorData.error || JSON.stringify(errorData);
+    } catch {
+      mensaje = await response.text().catch(() => "Error desconocido");
+    }
+
+    if (response.status === 400) {
+      throw new Error(mensaje || "El cierre programado debe ser una fecha futura.");
+    }
+    if (response.status === 404) {
+      throw new Error(mensaje || "Restaurante no encontrado.");
+    }
+    if (response.status === 409) {
+      throw new Error(mensaje || "El local debe estar abierto.");
+    }
+
+    throw new Error(mensaje || "Error al actualizar el cierre programado.");
+  }
+
+  return;
+}
+
+/**
  * Modifica el perfil de un restaurante registrado
  * @param resto Datos nuevos del restaurante a modificar
  * @returns

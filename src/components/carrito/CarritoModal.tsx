@@ -12,6 +12,7 @@ import { EnumTipoProducto } from "../../data/EnumTipoProducto.js";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { DetalleCombo } from "./DetalleCombo.js";
 import { obtenerPrecios } from "../../utils/productos.js";
+import { obtenerThumbnail } from "../../pages/restaurantes/utilitis/cloudinaryUtilitis.js";
 
 interface IngredientesEditorProps {
   producto: DTOProducto;
@@ -149,9 +150,9 @@ function ItemCarrito({
     <article className="rounded-2xl border border-gray-100 bg-white p-3 shadow-sm sm:p-4">
       <div className="flex gap-3">
         <img
-          src={item.producto?.urlImagen}
+          src={obtenerThumbnail(item.producto?.urlImagen ?? "")}
           alt={item.producto?.nombre}
-          className="h-16 w-16 shrink-0 rounded-xl bg-gray-100 object-cover sm:h-[72px] sm:w-[72px]"
+          className="h-16 w-16 shrink-0 rounded-xl bg-gray-100 object-cover sm:h-18 sm:w-18"
         />
 
         <div className="min-w-0 flex-1">

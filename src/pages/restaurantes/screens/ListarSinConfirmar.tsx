@@ -151,7 +151,7 @@ export default function ListarSinConfirmar() {
           filtroSelecte={productoSelect}
           mapToItem={(i) => ({
             id: i.toString() ?? "",
-            label: i.nombre,
+            label: i.nombre ?? "",
           })}
           onChangeFiltroSelect={(item) => {
             (setProductoSelect(item),

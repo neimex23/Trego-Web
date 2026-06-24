@@ -68,6 +68,7 @@ export const ENDPOINTS = {
   ABRIR_LOCAL: `/api/restaurantes/abrirLocal`,
   CERRAR_LOCAL: `/api/restaurantes/cerrarLocal`,
   ACTUALIZAR_CIERRE: `/api/restaurantes/actualizarCierre`,
+  ACTUALIZAR_CIERRE_PROGRAMADO: `/api/restaurantes/actualizarCierreProgramado`,
   CREAR_OFERTA: "/api/restaurantes/ofertas/crear",
   RESTAURANTE_ESTADISTICAS: "/api/restaurantes/estadisticas",
   ACTIVAR_DESACTIVAR_OFERTA: "/api/restaurantes/ofertas/desactivar",

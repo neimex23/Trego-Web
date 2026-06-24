@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { IconStar } from "./icons";
 import { BadgeAbierto, BadgeOfertas } from "./badges";
 import { formatearHorario } from "../utils/restaurantes.js";
+import { obtenerImagenRestauranteCard } from "../pages/restaurantes/utilitis/cloudinaryUtilitis.js";
 
 const cardBase =
   "block rounded-[18px] bg-trego-card p-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition hover:shadow-[0_3px_12px_rgba(0,0,0,0.12)] sm:p-3";
@@ -69,7 +70,7 @@ export default function RestaurantCard({
     >
       <article className="flex gap-2.5 sm:gap-3">
         <img
-          src={fotoPerfil}
+          src={obtenerImagenRestauranteCard(fotoPerfil)}
           alt=""
           className="h-12 w-12 shrink-0 self-center rounded-full bg-[#d4d4d9] object-cover sm:h-14 sm:w-14"
           loading="lazy"

@@ -22,6 +22,8 @@ interface HeaderProps {
   onChangeHoraCierre?: (item: string | undefined) => void;
   horaApertura?: string | undefined;
   onChangeHoraApertura?: (item: string | undefined) => void;
+  cierreProgramado?: string | undefined;
+  onChangeCierreProgramado?: (item: string) => void;
   onAbrirMenuNavegacion?: () => void;
   onLogout?: () => void;
   perfilNombre?: string;
@@ -67,6 +69,8 @@ export default function Header(props: HeaderProps) {
     navigateTo,
     horaApertura,
     onChangeHoraApertura,
+    cierreProgramado,
+    onChangeCierreProgramado,
     onAbrirMenuNavegacion,
     onCambiarContraseña,
     verHistorial,
@@ -250,6 +254,8 @@ export default function Header(props: HeaderProps) {
                     onChangeHoraCierre={onChangeHoraCierre}
                     horaApertura={horaApertura}
                     onChangeHoraApertura={onChangeHoraApertura}
+                    cierreProgramado={cierreProgramado}
+                    onChangeCierreProgramado={onChangeCierreProgramado}
                     onCambiarContrasenia={() => {
                       setMenuAbierto(false);
                       onCambiarContraseña?.();

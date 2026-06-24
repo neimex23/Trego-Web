@@ -229,6 +229,8 @@ export default function PerfilRestaurante() {
       descripcion: restaurante?.descripcion ?? "",
       categoria: restaurante?.categoria ?? EnumCategoriaRestaurante.Otros,
       radioEntrega: restaurante?.radioEntrega ?? 5,
+      horaApertura: restaurante?.horaApertura ?? "",
+      horaCierre: restaurante?.horaCierre ?? "",
     });
     setIsEditing(true);
   };
@@ -615,6 +617,63 @@ export default function PerfilRestaurante() {
                       strokeLinejoin="round"
                     />
                   </svg>
+                </div>
+              )}
+            </div>
+
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 text-slate-400">
+                  <Clock size={14} />
+                </div>
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+                  Horario
+                </span>
+              </div>
+
+              {!isEditing ? (
+                <p className="text-sm text-slate-700 pl-9">
+                  {restaurante?.horaApertura || restaurante?.horaCierre ? (
+                    `${formatTime(restaurante?.horaApertura)} – ${formatTime(restaurante?.horaCierre)}`
+                  ) : (
+                    <span className="italic text-slate-400">Sin horario</span>
+                  )}
+                </p>
+              ) : (
+                <div className="pl-9 flex items-end gap-3">
+                  <div className="flex flex-col">
+                    <label className="text-[11px] font-medium text-slate-400 mb-1">
+                      Apertura
+                    </label>
+                    <input
+                      type="time"
+                      value={formatTime(restauranteEdit?.horaApertura)}
+                      onChange={(e) =>
+                        setRestauranteEdit((prev) => ({
+                          ...prev,
+                          horaApertura: e.target.value,
+                        }))
+                      }
+                      className="px-3 py-2 border border-slate-200 rounded-xl text-sm text-slate-700 bg-white focus:outline-none focus:ring-[3px] focus:ring-[#1B6B3A]/25 transition-shadow"
+                    />
+                  </div>
+                  <span className="text-slate-300 pb-2">–</span>
+                  <div className="flex flex-col">
+                    <label className="text-[11px] font-medium text-slate-400 mb-1">
+                      Cierre
+                    </label>
+                    <input
+                      type="time"
+                      value={formatTime(restauranteEdit?.horaCierre)}
+                      onChange={(e) =>
+                        setRestauranteEdit((prev) => ({
+                          ...prev,
+                          horaCierre: e.target.value,
+                        }))
+                      }
+                      className="px-3 py-2 border border-slate-200 rounded-xl text-sm text-slate-700 bg-white focus:outline-none focus:ring-[3px] focus:ring-[#1B6B3A]/25 transition-shadow"
+                    />
+                  </div>
                 </div>
               )}
             </div>
