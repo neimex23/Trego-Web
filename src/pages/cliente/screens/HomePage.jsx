@@ -6,7 +6,6 @@ import SectionRow from "../../../components/SectionRow.jsx";
 import RestaurantCard from "../../../components/RestaurantCard.jsx";
 import OfertaPlatoCard from "../../../components/OfertaPlatoCard.jsx";
 import OrdenamientoSelect from "../../../components/OrdenamientoSelect.jsx";
-import { IconRefresh } from "../../../components/icons.jsx";
 import {
   leerPrefUbicacion,
   ubicacionPromptYaRespondido,
@@ -53,7 +52,6 @@ export default function HomePage() {
     buscarPlato,
     aplicarFiltros,
     limpiarFiltros,
-    recargar,
     setOrdenamiento,
     hayFiltrosActivos,
   } = useRestaurantes();
@@ -79,13 +77,7 @@ export default function HomePage() {
     !ubicacionCancelada &&
     !ubicacionPromptYaRespondido();
 
-  const destacados = useMemo(
-    () =>
-      [...restaurantes]
-        .sort((a, b) => (b.calificacionProm ?? 0) - (a.calificacionProm ?? 0))
-        .slice(0, 4),
-    [restaurantes],
-  );
+  const destacados = useMemo(() => restaurantes.slice(0, 4), [restaurantes]);
 
   const listaPrincipal = restaurantes;
 
@@ -115,10 +107,6 @@ export default function HomePage() {
   const handleCancelarUbicacion = () => {
     setUbicacionCancelada(true);
     geo.marcarPromptRechazado();
-  };
-
-  const handleRecargar = () => {
-    if (geo.tieneUbicacion) recargar(geo.coords);
   };
 
   const handleSeleccionarOferta = useCallback(
@@ -225,6 +213,7 @@ export default function HomePage() {
               </section>
             )}
 
+            {(cargandoOfertas || mejoresOfertas.length > 0) && (
             <section className="mb-6 sm:mb-7">
               <SeccionEncabezado
                 titulo="Mejores ofertas"
@@ -241,10 +230,6 @@ export default function HomePage() {
                 <p className="text-center text-sm text-gray-500">
                   Cargando ofertas…
                 </p>
-              )}
-
-              {!cargandoOfertas && mejoresOfertas.length === 0 && (
-                <EmptyState mensaje="No hay ofertas activas en tu zona por ahora" />
               )}
 
               {mejoresOfertas.length > 0 && (
@@ -271,6 +256,7 @@ export default function HomePage() {
                 </>
               )}
             </section>
+            )}
 
             {!modoBusqueda && destacados.length > 0 && (
               <SectionRow titulo="Descubre los Mejores Platos">
@@ -289,21 +275,10 @@ export default function HomePage() {
                 <SeccionEncabezado
                   titulo="Lista de Restaurantes"
                   acciones={
-                    <>
-                      <OrdenamientoSelect
-                        value={filtros.ordenamiento}
-                        onChange={setOrdenamiento}
-                      />
-                      <button
-                        type="button"
-                        onClick={handleRecargar}
-                        className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 shadow-sm hover:bg-gray-50 sm:w-auto sm:py-1"
-                        title="Recargar lista"
-                      >
-                        <IconRefresh className="h-4 w-4" />
-                        Recargar
-                      </button>
-                    </>
+                    <OrdenamientoSelect
+                      value={filtros.ordenamiento}
+                      onChange={setOrdenamiento}
+                    />
                   }
                 />
 
