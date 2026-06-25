@@ -196,7 +196,7 @@ export default function ModificarProducto({
       // Recortamos la imagen para que se vea de forma mas optimizada desde android
       const urlOptimizada = urlOriginal.replace(
         "/upload/",
-        "/upload/w_800,h_350,c_fill,g_auto/",
+        "/upload/w_1200,h_1200",
       );
 
       setFoto((prev) => ({

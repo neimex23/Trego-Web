@@ -180,7 +180,7 @@ export default function ListarClientesPage() {
 
         {!cargando && !error && (
           <div className="mb-6 flex flex-col gap-3 sm:gap-4 sm:flex-row sm:flex-wrap sm:items-end">
-            <label className="flex w-full flex-1 min-w-0 sm:min-w-[200px] flex-col gap-1">
+            <label className="flex w-full flex-1 min-w-0 sm:min-w-50 flex-col gap-1">
               <span className="text-sm font-medium text-gray-700">Buscar</span>
               <input
                 type="search"

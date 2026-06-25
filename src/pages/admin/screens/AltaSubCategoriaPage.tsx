@@ -124,7 +124,7 @@ export default function AltaSubCategoriaPage() {
         <button
         onClick={handleSubmit}
         disabled={estado === "cargando"}
-        className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-6 w-full rounded-xl bg-trego-admin px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-60"
         >
         {estado === "cargando" ? "Creando..." : "Crear subcategoría"}
         </button>

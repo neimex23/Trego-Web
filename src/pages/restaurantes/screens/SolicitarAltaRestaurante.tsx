@@ -143,12 +143,12 @@ export default function SolicitarAltaRestaurante() {
       if (field === "portada") {
         urlOptimizada = urlOriginal.replace(
           "/upload/",
-          "/upload/w_800,h_350,c_fill,g_auto/",
+          "/upload/w_1200,h_1200",
         );
       } else {
         urlOptimizada = urlOriginal.replace(
           "/upload/",
-          "/upload/w_200,h_200,c_fill,g_auto/",
+          "/upload/w_200,h_200",
         );
       }
 

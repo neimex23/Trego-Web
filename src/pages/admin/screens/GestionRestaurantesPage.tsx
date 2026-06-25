@@ -283,7 +283,7 @@ export default function GestionRestaurantesPage() {
                   type="button"
                   onClick={handleHabilitar}
                   disabled={accionLoading}
-                  className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:opacity-50"
+                  className="rounded-xl bg-trego-admin px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-trego-add disabled:opacity-50"
                 >
                   {accionLoading ? "Procesando..." : "Habilitar"}
                 </button>

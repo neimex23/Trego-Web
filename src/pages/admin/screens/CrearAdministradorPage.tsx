@@ -117,7 +117,7 @@ export default function CrearAdministradorPage() {
         <button
           type="submit"
           disabled={enviando}
-          className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-6 w-full rounded-xl bg-trego-admin px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {enviando ? "Creando..." : "Crear administrador"}
         </button>

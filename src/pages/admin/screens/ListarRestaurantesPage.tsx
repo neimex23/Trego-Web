@@ -284,6 +284,7 @@ export default function ListarRestaurantesPage() {
                 ? "No hay restaurantes registrados"
                 : "No hay resultados para los filtros aplicados"
             }
+            onLimpiarFiltros={() => {}}
           />
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2">

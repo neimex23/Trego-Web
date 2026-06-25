@@ -108,7 +108,7 @@ export default function AltaOferta({
       // Recortamos la imagen para que se vea de forma mas optimizada desde android
       const urlOptimizada = urlOriginal.replace(
         "/upload/",
-        "/upload/w_200,h_200,c_fill,g_auto/",
+        "/upload/w_200,h_200",
       );
 
       setFoto((prev) => ({
