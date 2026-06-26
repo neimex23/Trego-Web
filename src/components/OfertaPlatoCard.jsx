@@ -45,7 +45,7 @@ export default function OfertaPlatoCard({
           <img
             src={obtenerBannerOferta(imagen)}
             alt="Imagen oferta"
-            className="h-full w-full object-contain"
+            className="h-full w-full object-cover"
             loading="lazy"
           />
         ) : (

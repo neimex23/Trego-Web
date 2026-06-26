@@ -234,7 +234,7 @@ export default function HomePage() {
 
               {mejoresOfertas.length > 0 && (
                 <>
-                  <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-1 pb-2 [scrollbar-gutter:stable] sm:hidden">
+                  <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-1 pb-2 scrollbar-gutter-stable sm:hidden">
                     {mejoresOfertas.map((oferta) => (
                       <OfertaPlatoCard
                         key={`${oferta.idRestaurante}-${oferta.producto?.idProducto}`}
@@ -243,7 +243,7 @@ export default function HomePage() {
                       />
                     ))}
                   </div>
-                  <div className="hidden grid-cols-2 gap-3 sm:grid lg:grid-cols-3 xl:grid-cols-4">
+                  <div className="hidden grid-cols-3 gap-3 sm:grid lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                     {mejoresOfertas.map((oferta) => (
                       <OfertaPlatoCard
                         key={`grid-${oferta.idRestaurante}-${oferta.producto?.idProducto}`}
