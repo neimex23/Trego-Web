@@ -406,7 +406,7 @@ export default function ListarRestaurantesPage() {
                   cuentaHabilitada={
                     seleccionado.habilitado
                       ? (seleccionado.cuentaHabilitada ?? true)
-                      : undefined
+                      : false
                   }
                   esSolicitudPendiente={!seleccionado.habilitado}
                   onEstadoActualizado={() =>

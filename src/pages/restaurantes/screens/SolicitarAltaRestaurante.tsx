@@ -138,25 +138,11 @@ export default function SolicitarAltaRestaurante() {
 
       const urlOriginal = cloudinaryData.secure_url;
 
-      let urlOptimizada = urlOriginal;
-
-      if (field === "portada") {
-        urlOptimizada = urlOriginal.replace(
-          "/upload/",
-          "/upload/w_1200,h_1200",
-        );
-      } else {
-        urlOptimizada = urlOriginal.replace(
-          "/upload/",
-          "/upload/w_200,h_200",
-        );
-      }
-
       //Guardamos la URL segura final en tu estado
       setter((prev) => ({
         ...prev,
         uploadState: "done",
-        cloudUrl: urlOptimizada, // Usamos la optimizada
+        cloudUrl: urlOriginal, // Usamos la optimizada
       }));
     } catch (error) {
       console.error("Error en el proceso de imagen:", error);

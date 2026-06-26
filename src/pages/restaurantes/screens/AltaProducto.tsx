@@ -111,16 +111,10 @@ export default function AltaProducto() {
 
       const urlOriginal = cloudinaryData.secure_url;
 
-      // Recortamos la imagen para que se vea de forma mas optimizada desde android
-      const urlOptimizada = urlOriginal.replace(
-        "/upload/",
-        "/upload/w_1200,h_1200",
-      );
-
       setFoto((prev) => ({
         ...prev,
         uploadState: "done",
-        cloudUrl: urlOptimizada, // Usamos la optimizada
+        cloudUrl: urlOriginal, // Usamos la optimizada
       }));
     } catch (error) {
       console.error("Error en el proceso de imagen:", error);
