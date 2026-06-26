@@ -31,7 +31,7 @@ export const obtenerThumbnail = (url: string | undefined) => {
  * Para las tarjetas de ofertas horizontales en la web (600x200)
  */
 export const obtenerBannerOferta = (url: string | undefined) => {
-  return optimizarImagen(url, 600, 200);
+  return optimizarImagen(url, 600, 600);
 };
 
 /**

@@ -67,7 +67,7 @@ export default function FiltrosRestaurantes<T>({
       {/* Buscador */}
       <label
         htmlFor="filtro-busqueda"
-        className="flex flex-1 flex-col gap-1 min-w-60 max-w-120"
+        className="flex flex-1 flex-col gap-1 min-w-70 max-w-120"
       >
         <span className="text-sm font-medium text-center text-gray-700">
           {labelBuscador}
@@ -88,7 +88,7 @@ export default function FiltrosRestaurantes<T>({
         <>
           <label
             htmlFor="filtro-producto"
-            className="flex flex-1 flex-col gap-1 min-w-60 max-w-120"
+            className="flex flex-1 flex-col gap-1 min-w-70 max-w-120"
           >
             <span className="text-sm font-medium text-center text-gray-700">
               {desplegableTipo}
