@@ -17,14 +17,19 @@ import { useBusqueda } from "../../../context/BusquedaContext.js";
 import { useDebounce } from "../../../hooks/useDebounce.ts";
 import { useCarrito } from "../../../context/CarritoContext.js";
 import { resolverProductoOfertaParaCarrito } from "../../../api/productosClienteApi.js";
+import Footer from "../../../components/body/Footer.js";
 
 function SeccionEncabezado({ titulo, subtitulo, acciones }) {
   return (
     <header className="mb-3 flex flex-col gap-3 px-0.5 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        <h2 className="text-base font-bold text-gray-900 sm:text-[17px]">{titulo}</h2>
+        <h2 className="text-base font-bold text-gray-900 sm:text-[17px]">
+          {titulo}
+        </h2>
         {subtitulo && (
-          <p className="mt-0.5 text-xs text-gray-500 sm:text-[13px]">{subtitulo}</p>
+          <p className="mt-0.5 text-xs text-gray-500 sm:text-[13px]">
+            {subtitulo}
+          </p>
         )}
       </div>
       {acciones ? (
@@ -82,13 +87,13 @@ export default function HomePage() {
   const listaPrincipal = restaurantes;
 
   useEffect(() => {
-    if (!geo.tieneUbicacion || !geo.coords) return
+    if (!geo.tieneUbicacion || !geo.coords) return;
 
-    const termino = debouncedBusqueda.trim()
+    const termino = debouncedBusqueda.trim();
     if (termino) {
-      buscarPlato(geo.coords, termino)
+      buscarPlato(geo.coords, termino);
     } else {
-      cargarZona(geo.coords)
+      cargarZona(geo.coords);
     }
     // buscarPlato y cargarZona son estables (useCallback con deps fijas)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -97,7 +102,7 @@ export default function HomePage() {
     geo.coords?.latitud,
     geo.coords?.longitud,
     debouncedBusqueda,
-  ])
+  ]);
 
   const handleActivarUbicacion = () => {
     setPromptOcultoManualmente(true);
@@ -114,10 +119,10 @@ export default function HomePage() {
       if (cargandoOfertaSeleccionada) return;
       setCargandoOfertaSeleccionada(true);
       try {
-        const { producto, restaurante } = await resolverProductoOfertaParaCarrito(
-          oferta,
-          { restaurantesZona: restaurantes },
-        );
+        const { producto, restaurante } =
+          await resolverProductoOfertaParaCarrito(oferta, {
+            restaurantesZona: restaurantes,
+          });
         if (!producto) return;
         if (restaurante) {
           validarRestauranteAbierto(restaurante.abierto ?? true);
@@ -139,10 +144,7 @@ export default function HomePage() {
     (geo.ubicacionDenegada || ubicacionCancelada) && !geo.tieneUbicacion;
 
   const vacioBusqueda =
-    modoBusqueda &&
-    !cargando &&
-    !error &&
-    resultadosBusquedaPlato.length === 0;
+    modoBusqueda && !cargando && !error && resultadosBusquedaPlato.length === 0;
 
   const vacioLista =
     !modoBusqueda &&
@@ -152,8 +154,8 @@ export default function HomePage() {
     listaPrincipal.length === 0;
 
   return (
-    <div className="min-h-full bg-[#f5f5f7]">
-      <div className="mx-auto w-full max-w-400 px-3 py-4 sm:px-6 sm:py-6">
+    <div className="min-h-screen flex flex-col bg-[#f5f5f7]">
+      <div className="flex-1 mx-auto w-full max-w-400 px-3 py-4 sm:px-6 sm:py-6">
         {cargando && (
           <p className="mb-4 text-center text-sm text-gray-500">
             {modoBusqueda
@@ -199,63 +201,65 @@ export default function HomePage() {
                   />
                 ) : (
                   <div className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 xl:grid-cols-3">
-                    {resultadosBusquedaPlato.map(({ restaurante, productos }) => (
-                      <RestaurantCard
-                        key={restaurante.idUsuario}
-                        restaurante={restaurante}
-                        modoBusqueda={modoBusqueda}
-                        productosCoincidentes={productos}
-                        enGrid
-                      />
-                    ))}
+                    {resultadosBusquedaPlato.map(
+                      ({ restaurante, productos }) => (
+                        <RestaurantCard
+                          key={restaurante.idUsuario}
+                          restaurante={restaurante}
+                          modoBusqueda={modoBusqueda}
+                          productosCoincidentes={productos}
+                          enGrid
+                        />
+                      ),
+                    )}
                   </div>
                 )}
               </section>
             )}
 
             {(cargandoOfertas || mejoresOfertas.length > 0) && (
-            <section className="mb-6 sm:mb-7">
-              <SeccionEncabezado
-                titulo="Mejores ofertas"
-                subtitulo="Platos en promoción en tu zona"
-                acciones={
-                  <OrdenamientoSelect
-                    value={filtros.ordenamiento}
-                    onChange={setOrdenamiento}
-                  />
-                }
-              />
+              <section className="mb-6 sm:mb-7">
+                <SeccionEncabezado
+                  titulo="Mejores ofertas"
+                  subtitulo="Platos en promoción en tu zona"
+                  acciones={
+                    <OrdenamientoSelect
+                      value={filtros.ordenamiento}
+                      onChange={setOrdenamiento}
+                    />
+                  }
+                />
 
-              {cargandoOfertas && mejoresOfertas.length === 0 && (
-                <p className="text-center text-sm text-gray-500">
-                  Cargando ofertas…
-                </p>
-              )}
+                {cargandoOfertas && mejoresOfertas.length === 0 && (
+                  <p className="text-center text-sm text-gray-500">
+                    Cargando ofertas…
+                  </p>
+                )}
 
-              {mejoresOfertas.length > 0 && (
-                <>
-                  <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-1 pb-2 scrollbar-gutter-stable sm:hidden">
-                    {mejoresOfertas.map((oferta) => (
-                      <OfertaPlatoCard
-                        key={`${oferta.idRestaurante}-${oferta.producto?.idProducto}`}
-                        oferta={oferta}
-                        onSeleccionar={handleSeleccionarOferta}
-                      />
-                    ))}
-                  </div>
-                  <div className="hidden grid-cols-3 gap-3 sm:grid lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-                    {mejoresOfertas.map((oferta) => (
-                      <OfertaPlatoCard
-                        key={`grid-${oferta.idRestaurante}-${oferta.producto?.idProducto}`}
-                        oferta={oferta}
-                        enGrid
-                        onSeleccionar={handleSeleccionarOferta}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
-            </section>
+                {mejoresOfertas.length > 0 && (
+                  <>
+                    <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-1 pb-2 scrollbar-gutter-stable sm:hidden">
+                      {mejoresOfertas.map((oferta) => (
+                        <OfertaPlatoCard
+                          key={`${oferta.idRestaurante}-${oferta.producto?.idProducto}`}
+                          oferta={oferta}
+                          onSeleccionar={handleSeleccionarOferta}
+                        />
+                      ))}
+                    </div>
+                    <div className="hidden grid-cols-3 gap-3 sm:grid lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+                      {mejoresOfertas.map((oferta) => (
+                        <OfertaPlatoCard
+                          key={`grid-${oferta.idRestaurante}-${oferta.producto?.idProducto}`}
+                          oferta={oferta}
+                          enGrid
+                          onSeleccionar={handleSeleccionarOferta}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </section>
             )}
 
             {!modoBusqueda && destacados.length > 0 && (
@@ -333,6 +337,7 @@ export default function HomePage() {
         onCerrar={cerrarFiltros}
         onAplicar={(nuevos) => aplicarFiltros(nuevos)}
       />
+      <Footer />
     </div>
   );
 }

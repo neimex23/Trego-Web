@@ -14,6 +14,7 @@ import { limpiarSesion } from "../../utils/sesion.js";
 import { useCarrito } from "../../context/CarritoContext.js";
 import { useCliente } from "../../hooks/useCliente.js";
 import { useEffect } from "react";
+import Footer from "../../components/body/Footer.js";
 
 export default function ClienteLayaut() {
   const navigate = useNavigate();
