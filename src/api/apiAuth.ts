@@ -85,6 +85,26 @@ export const apiAuth = {
     };
   },
 
+  // Vincula un segundo método de acceso (Google o SMS) a la cuenta del cliente
+  // ya autenticado. Recibe el token Firebase del proveedor recién vinculado en
+  // Firebase (mismo UID, vía linkWithCredential). El backend rellena los campos
+  // que falten (email o teléfono). No redirige al login ante un 401 porque ese
+  // estado indica un token Firebase inválido, no una sesión expirada.
+  vincularProveedor: async (firebaseToken: string): Promise<void> => {
+    const response = await fetchConAuth(ENDPOINTS.AUTH_VINCULAR, {
+      method: "POST",
+      body: JSON.stringify({ firebaseToken }),
+      redirectOnUnauthorized: false,
+    });
+
+    if (!response.ok) {
+      if (response.status === 409) throw new Error("PROVEEDOR_EN_USO");
+      if (response.status === 403) throw new Error("CUENTA_DESHABILITADA");
+      if (response.status === 401) throw new Error("TOKEN_INVALIDO");
+      throw new Error("ERROR_SERVIDOR");
+    }
+  },
+
   cerrarSesion: async (): Promise<void> => {
     // La funcion fetchConAuth manda el token de sesion al backend
     const response = await fetchConAuth(ENDPOINTS.AUTH_CERRAR_SESION, {

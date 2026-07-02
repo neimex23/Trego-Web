@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import DireccionCard from "../../components/cliente/DireccionCard.js";
 import DireccionForm from "../../components/cliente/DireccionForm.js";
+import MetodosAcceso from "../../components/cliente/MetodosAcceso.js";
 import { useCliente } from "../../hooks/useCliente.js";
 import type { DTODireccion } from "../../data/DTODireccion.js";
 import {
@@ -504,6 +505,11 @@ export default function PerfilCliente() {
                 </div>
               </div>
             </div>
+
+            {/* Métodos de acceso: vincular Google / SMS */}
+            {cliente && (
+              <MetodosAcceso cliente={cliente} onVinculado={recargar} />
+            )}
           </div>
 
           {/* Columna derecha: direcciones */}

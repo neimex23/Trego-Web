@@ -48,6 +48,7 @@ export const ENDPOINTS = {
   AUTH_ADMIN_VERIFICAR_OTP: '/api/auth/admin/verificar-otp', // falta endpoint backend
   AUTH_CERRAR_SESION: '/api/auth/cerrarSesion',
   AUTH_REGISTRO: '/api/auth/registro',
+  AUTH_VINCULAR: '/api/auth/vincular',
 
   // Restaurante — alta de local (formulario completo)
   SOLICITUD_ALTA_RESTAURANTE: '/api/restaurantes/altaRestaurante',
