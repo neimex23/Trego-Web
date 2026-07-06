@@ -40,10 +40,10 @@ const ESTADOS_HISTORIAL = [
   { valor: "Reembolsado", etiqueta: "Reembolsado" },
 ];
 
-const ESTADOS_SIN_RECLAMO = new Set(["Pagado", "Cancelado", "Reembolsado"]);
+const ESTADOS_CON_RECLAMO = new Set(["EnPreparacion", "EnCamino", "Entregado"]);
 
 function estadoPermiteReclamo(estado) {
-  return !!estado && !ESTADOS_SIN_RECLAMO.has(estado);
+  return ESTADOS_CON_RECLAMO.has(estado);
 }
 
 function etiquetaEstado(estado) {
@@ -228,9 +228,13 @@ export default function HistorialPage() {
     setFechaHasta("");
   };
 
+  function yaReclamado(pedido) {
+    return !!pedido?.tieneReclamo || pedidosConReclamo.has(pedido?.idPedido);
+  }
+
   function puedeReclamar(pedido) {
     if (!pedido?.idPedido || !estadoPermiteReclamo(pedido.estado)) return false;
-    return !pedidosConReclamo.has(pedido.idPedido);
+    return !yaReclamado(pedido);
   }
 
   function abrirReclamo(pedido) {
@@ -454,10 +458,11 @@ export default function HistorialPage() {
                   )}
 
                   {estadoPermiteReclamo(pedido.estado) &&
-                    pedidosConReclamo.has(pedido.idPedido) && (
-                      <p className="mt-3 text-center text-xs font-medium text-gray-500">
+                    yaReclamado(pedido) && (
+                      <div className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs font-semibold text-gray-500">
+                        <AlertCircle className="h-4 w-4" aria-hidden />
                         Ya registraste un reclamo para este pedido
-                      </p>
+                      </div>
                     )}
                 </article>
               </li>

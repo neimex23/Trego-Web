@@ -71,7 +71,7 @@ export default function DireccionAutocomplete({
   onClear,
   error,
   className,
-  classNameLabel
+  classNameLabel,
 }: DireccionAutocompleteProps) {
   const [sugerencias, setSugerencias] = useState<DireccionGeoapify[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -83,6 +83,14 @@ export default function DireccionAutocomplete({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (abortControllerRef.current) abortControllerRef.current.abort();
+    };
+  }, []);
 
   // ── Cerrar al hacer click afuera ──────────────────────────────────────────
   useEffect(() => {
@@ -108,6 +116,7 @@ export default function DireccionAutocomplete({
     setSearchError(null);
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (abortControllerRef.current) abortControllerRef.current.abort();
 
     if (text.trim().length < 3) {
       setSugerencias([]);
@@ -118,12 +127,19 @@ export default function DireccionAutocomplete({
     // 400ms para no hacer una petición por cada tecla
     debounceRef.current = setTimeout(async () => {
       setIsSearching(true);
+      abortControllerRef.current = new AbortController();
       try {
-        const resultados = await buscarDireccionesGeoapify(text);
+        const resultados = await buscarDireccionesGeoapify(
+          text,
+          abortControllerRef.current.signal,
+        );
         setSugerencias(resultados);
         setIsOpen(resultados.length > 0);
         setShowNoResults(resultados.length === 0);
-      } catch (err) {
+      } catch (err: any) {
+        if (err.name === "AbortError") {
+          return;
+        }
         console.error("Error buscando dirección:", err);
         setSugerencias([]);
         setIsOpen(false);
@@ -132,7 +148,9 @@ export default function DireccionAutocomplete({
           "No se pudo buscar la dirección. Revisá que el backend esté corriendo.",
         );
       } finally {
-        setIsSearching(false);
+        if (!abortControllerRef.current?.signal.aborted) {
+          setIsSearching(false);
+        }
       }
     }, 400);
   };
@@ -184,6 +202,7 @@ export default function DireccionAutocomplete({
     setShowNoResults(false);
     setSearchError(null);
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (abortControllerRef.current) abortControllerRef.current.abort();
     inputRef.current?.focus();
   };
 
@@ -194,7 +213,9 @@ export default function DireccionAutocomplete({
     <div className="relative w-full flex flex-col " ref={wrapperRef}>
       {/* Label */}
       {label && (
-        <label className={`text-sm font-semibold px-5 text-gray-700 ${classNameLabel}`}>
+        <label
+          className={`text-sm font-semibold px-5 text-gray-700 ${classNameLabel}`}
+        >
           {label}
         </label>
       )}

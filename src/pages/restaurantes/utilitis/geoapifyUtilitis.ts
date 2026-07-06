@@ -8,18 +8,20 @@ const MONTEVIDEO_BIAS = "proximity:-56.1674,-34.9011";
 
 export async function buscarDireccionesGeoapify(
   query: string,
+  signal?: AbortSignal
 ): Promise<DireccionGeoapify[]> {
   const params = new URLSearchParams({
     text: query,
-    apiKey: GEOAPIFY_API_KEY,
+    apiKey: GEOAPIFY_API_KEY || "",
     lang: "es",
     limit: "6",
-    filter: "countrycode:uy", // Solo resultados de Uruguay
-    bias: MONTEVIDEO_BIAS, // Priorizar resultados cerca de Montevideo
+    filter: "circle:-56.1674,-34.9011,25000|countrycode:uy",
+    bias: MONTEVIDEO_BIAS,
   });
 
   const res = await fetch(
     `https://api.geoapify.com/v1/geocode/autocomplete?${params}`,
+    { signal: signal ?? null }
   );
 
   if (!res.ok) throw new Error(`Geoapify error ${res.status}`);
@@ -33,7 +35,7 @@ export async function buscarDireccionesGeoapify(
 
         return {
           calle: p.street ?? p.address_line1 ?? "",
-          numero: p.housenumber ?? "", // ← campo que faltaba mapear
+          numero: p.housenumber ?? "",
           direccionCompleta: p.formatted ?? "",
           esquina: p.street_junction ?? "",
           latitud: p.lat,

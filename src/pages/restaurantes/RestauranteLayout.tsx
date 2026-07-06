@@ -350,6 +350,7 @@ export default function RestauranteLayout() {
         restauranteAbierto={restauranteAbierto}
         onToggleRestauranteAbierto={handleToggleRestaurante}
         onLogout={handleLogout}
+        navigateTo="/restaurantes/ListarPedidosSinConfirmar"
       />
       <div className="flex flex-1 overflow-hidden">
         {/* Le pasamos el estado real al Sidebar para que se bloquee visualmente */}

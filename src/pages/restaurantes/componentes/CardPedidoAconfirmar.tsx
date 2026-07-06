@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Clock, MapPin, User, Check, X, AlertTriangle } from "lucide-react";
+import { Clock, MapPin, User, Check, X, AlertTriangle, MessageSquareWarning } from "lucide-react";
 import { EnumEstadoPedido } from "../../../data/EnumEstadoPedido.js";
 import {
   ESTADOS_FLUJO,
@@ -99,11 +99,15 @@ export default function CardPedidoAconfirmar({
           </div>
         ) : pedido.estado === EnumEstadoPedido.Reembolsado ? (
           <div className="flex items-center gap-1.5 text-xs font-bold">
-            <span>Cancelado - Pedido el: {toDateString(pedido.fechaCreacion)}</span>
+            <span>
+              Cancelado - Pedido el: {toDateString(pedido.fechaCreacion)}
+            </span>
           </div>
         ) : (
           <div className="flex items-center gap-1.5 text-xs font-bold">
-            <span>Entregado - Pedido el: {toDateString(pedido.fechaCreacion)}</span>
+            <span>
+              Entregado - Pedido el: {toDateString(pedido.fechaCreacion)}
+            </span>
           </div>
         )}
       </div>
@@ -189,6 +193,19 @@ export default function CardPedidoAconfirmar({
             <Check size={16} strokeWidth={3} />
             CONFIRMAR PEDIDO
           </button>
+        </div>
+      )}
+
+      {pedido.tieneReclamo && (
+        <div className="px-5 py-3 bg-amber-50 border-t border-amber-200 flex items-center gap-2.5">
+          <MessageSquareWarning
+            size={18}
+            className="text-amber-600 shrink-0"
+            strokeWidth={2.2}
+          />
+          <span className="text-sm font-bold text-amber-800">
+            Este pedido tiene un reclamo asociado
+          </span>
         </div>
       )}
 

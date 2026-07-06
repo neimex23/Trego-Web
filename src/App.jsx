@@ -69,8 +69,7 @@ export default function AppRouter() {
           <Route path="/pending" element={<PagoPendiente />} />
         </Route>
 
-        {/* --- RUTAS PRIVADAS (ENVUELTAS EN EL LAYOUT) --- */}
-        {/* Este Route padre inyecta el Header y Sidebar. Los hijos se renderizan en el <Outlet /> todo lo que lleve la barra lateral de restaurante debe ir dentro de este Route*/}
+        {/* --- RUTAS RESTAURANTE --- */}
         <Route element={<RestauranteLayout />}>
           <Route
             path="/restaurantes/solicitarAlta"

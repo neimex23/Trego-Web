@@ -2,9 +2,15 @@ import { useState } from "react";
 import ImagenUploadField from "../../../components/ImagenUploadField.js";
 import { TextInput } from "../../../components/TextInput.js";
 import { TextSelector } from "../../../components/TextSelector.js";
-import { administradorApi, type CategoriaProducto } from "../../../api/administradorApi.js";
+import {
+  administradorApi,
+  type CategoriaProducto,
+} from "../../../api/administradorApi.js";
 import type { ImageField } from "../../../components/typos/ImageField.js";
-import AdminPageShell, { AdminPageHeader } from "../components/AdminPageShell.js";
+import AdminPageShell, {
+  AdminPageHeader,
+} from "../components/AdminPageShell.js";
+import { obtenerFirmaCloudinary } from "../../../api/apiRestaurante.js";
 
 const CATEGORIAS: CategoriaProducto[] = [
   "Bebida",
@@ -35,31 +41,88 @@ export default function AltaSubCategoriaPage() {
     categoria?: string;
   }>({});
 
-  const handleImageChange = (file: File) => {
+  const handleImageChange = async (file: File) => {
     if (foto.previewUrl) URL.revokeObjectURL(foto.previewUrl);
+
     const previewUrl = URL.createObjectURL(file);
-    setFoto({ file, previewUrl, uploadState: "idle", cloudUrl: null });
+    // Seteamos el estado local con la preview y avisamos que está subiendo
+    setFoto({ file, previewUrl, uploadState: "uploading", cloudUrl: null });
+    setErrors(({ foto, ...resto }) => resto);
+
+    try {
+      const nombreSinExtension =
+        file.name.substring(0, file.name.lastIndexOf(".")) || file.name;
+      const datosBack = await obtenerFirmaCloudinary(
+        nombreSinExtension,
+        "image",
+      );
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("api_key", datosBack.apiKey);
+      formData.append("timestamp", datosBack.timestamp.toString());
+      formData.append("signature", datosBack.firma);
+      formData.append("public_id", datosBack.publicId);
+
+      const cloudinaryRes = await fetch(datosBack.uploadUrl, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!cloudinaryRes.ok) throw new Error("Cloudinary rechazó la imagen");
+
+      const cloudinaryData = await cloudinaryRes.json();
+
+      // Guardamos la URL limpia original
+      setFoto((prev) => ({
+        ...prev,
+        uploadState: "done",
+        cloudUrl: cloudinaryData.secure_url,
+      }));
+    } catch (error) {
+      console.error("Error subiendo imagen:", error);
+      setFoto({ file, previewUrl, uploadState: "error", cloudUrl: null });
+      setErrors((p) => ({
+        ...p,
+        foto: "No se pudo subir la imagen. Intentá de nuevo.",
+      }));
+    }
   };
 
   const validar = () => {
     const e: typeof errors = {};
     if (!nombre.trim()) e.nombre = "El nombre es obligatorio";
-    if (!foto.file) e.foto = "La imagen es obligatoria";
+    // Validamos que exista la url de la nube o que esté subiendo
+    if (!foto.cloudUrl && foto.uploadState !== "uploading")
+      e.foto = "La imagen es obligatoria";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
   const handleSubmit = async () => {
     if (!validar()) return;
+    // Evitamos enviar si la imagen todavía se está procesando en Cloudinary
+    if (foto.uploadState === "uploading") return;
+
     setEstado("cargando");
     setMensajeError(null);
 
     try {
-      await administradorApi.crearSubCategoria(nombre.trim(), categoria, foto.file!);
+      // 2. ENVIAMOS SOLO LA URL AL BACKEND
+      await administradorApi.crearSubCategoria(
+        nombre.trim(),
+        categoria,
+        foto.cloudUrl!,
+      );
       setEstado("exito");
       setNombre("");
       setCategoria("Principal");
-      setFoto({ file: null, previewUrl: null, cloudUrl: null, uploadState: "idle" });
+      setFoto({
+        file: null,
+        previewUrl: null,
+        cloudUrl: null,
+        uploadState: "idle",
+      });
       setErrors({});
     } catch (err) {
       setEstado("error");
@@ -67,7 +130,7 @@ export default function AltaSubCategoriaPage() {
         setMensajeError(
           err.message === "ERROR_DUPLICADO"
             ? "Ya existe una subcategoría con ese nombre."
-            : "Error al crear la subcategoría. Intentá de nuevo."
+            : "Error al crear la subcategoría. Intentá de nuevo.",
         );
       }
     }
@@ -75,60 +138,62 @@ export default function AltaSubCategoriaPage() {
 
   return (
     <AdminPageShell>
-    <div className="mx-auto w-full max-w-md flex flex-col gap-4">
-      <AdminPageHeader
-        titulo="Nueva subcategoría"
-        descripcion="Creá una subcategoría para organizar los productos del menú."
-      />
-
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">Nombre</span>
-        <TextInput
-        placeholder="Nombre de la subcategoría"
-        value={nombre}
-        onChange={(v) => setNombre(v)}
-        {...(errors.nombre ? { error: errors.nombre } : {})}
+      <div className="mx-auto w-full max-w-md flex flex-col gap-4">
+        <AdminPageHeader
+          titulo="Nueva subcategoría"
+          descripcion="Creá una subcategoría para organizar los productos del menú."
         />
-      </label>
 
-      <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium">Categoría</span>
-        <TextSelector
-        items={CATEGORIAS}
-        selected={categoria}
-        onSelect={(v) => { if (v) setCategoria(v); }}
-        mapToItem={(c) => ({ id: c, label: c })}
-        placeholder="Seleccioná una categoría"
-        {...(errors.categoria ? { error: errors.categoria } : {})}
-        />
-      </div>
+        <label className="flex flex-col gap-1">
+          <span className="text-sm font-medium">Nombre</span>
+          <TextInput
+            placeholder="Nombre de la subcategoría"
+            value={nombre}
+            onChange={(v) => setNombre(v)}
+            {...(errors.nombre ? { error: errors.nombre } : {})}
+          />
+        </label>
+
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-medium">Categoría</span>
+          <TextSelector
+            items={CATEGORIAS}
+            selected={categoria}
+            onSelect={(v) => {
+              if (v) setCategoria(v);
+            }}
+            mapToItem={(c) => ({ id: c, label: c })}
+            placeholder="Seleccioná una categoría"
+            {...(errors.categoria ? { error: errors.categoria } : {})}
+          />
+        </div>
 
         <ImagenUploadField
-        label="Imagen"
-        imageField={foto}
-        onImageChange={handleImageChange}
-        hasError={!!errors.foto}
-        {...(errors.foto ? { errorMessage: errors.foto } : {})}
+          label="Imagen"
+          imageField={foto}
+          onImageChange={handleImageChange}
+          hasError={!!errors.foto}
+          {...(errors.foto ? { errorMessage: errors.foto } : {})}
         />
 
-      {estado === "exito" && (
-        <p className="text-green-600 font-medium">
-          ¡Subcategoría creada correctamente!
-        </p>
-      )}
+        {estado === "exito" && (
+          <p className="text-green-600 font-medium">
+            ¡Subcategoría creada correctamente!
+          </p>
+        )}
 
-      {estado === "error" && mensajeError && (
-        <p className="text-red-600 font-medium">{mensajeError}</p>
-      )}
+        {estado === "error" && mensajeError && (
+          <p className="text-red-600 font-medium">{mensajeError}</p>
+        )}
 
         <button
-        onClick={handleSubmit}
-        disabled={estado === "cargando"}
-        className="mt-6 w-full rounded-xl bg-trego-admin px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-60"
+          onClick={handleSubmit}
+          disabled={estado === "cargando"}
+          className="mt-6 w-full rounded-xl bg-trego-admin px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-60"
         >
-        {estado === "cargando" ? "Creando..." : "Crear subcategoría"}
+          {estado === "cargando" ? "Creando..." : "Crear subcategoría"}
         </button>
-    </div>
+      </div>
     </AdminPageShell>
   );
 }

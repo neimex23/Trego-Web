@@ -123,7 +123,7 @@ export default function AdministradorLayaut() {
 
   // Si pasa todas las reglas, renderizamos la pantalla normal
   return (
-    <div className="h-[100dvh] w-screen flex flex-col bg-gray-50 overflow-hidden notranslate" lang="es">
+    <div className="h-dvh w-screen flex flex-col bg-gray-50 overflow-hidden notranslate" lang="es">
       <Header
         tipoUser="Administrador"
         onAbrirMenuNavegacion={() => setMenuNavegacionAbierto(true)}
@@ -132,6 +132,7 @@ export default function AdministradorLayaut() {
         onCambiarContraseña={() => navigate("/admin/perfil/contraseña")}
         onLogout={handleLogout}
         cambiarContrasenia
+        navigateTo="/admin/restaurantes"
       />
       <div className="flex flex-1 min-h-0 overflow-hidden">
         <Sidebar

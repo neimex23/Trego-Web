@@ -15,4 +15,6 @@ export interface DTOPedido {
   fechaExpiracion?: string;
   horaEntregaEstimada?: string;
   tiempoPreparacion?: number;
+  tieneReclamo?: boolean;
+
 }
