@@ -21,6 +21,7 @@ import {
   eliminarProductoDelCarrito,
   modificarProductoEnCarrito,
   obtenerCarrito,
+  vaciarItemsCarrito,
 } from "../api/carritoApi.js";
 import { obtenerDireccionesGuardadas } from "../api/usuariosApi.js";
 import { confirmarPedido } from "../api/pedidosApi.js";
@@ -72,6 +73,10 @@ export interface DireccionContexto {
 
 type ModalSuperiorType = "pago" | "direccion" | "carrito" | "detalle" | null;
 
+export interface VaciarCarritoOptions {
+  conservarDireccion?: boolean;
+}
+
 // ==========================================
 // INTERFAZ DEL CONTEXTO
 // ==========================================
@@ -110,7 +115,7 @@ export interface CarritoContextType {
     React.SetStateAction<DireccionContexto | null>
   >;
   setMensajeCarrito: React.Dispatch<React.SetStateAction<string | null>>;
-  vaciarCarrito: () => Promise<void>;
+  vaciarCarrito: (opts?: VaciarCarritoOptions) => Promise<void>;
   agregarProductoAlCarrito: (
     args: DTOProductoPedido,
     restauranteInfo?: DTORestaurante | null,
@@ -375,18 +380,39 @@ export function CarritoProvider({ children }: CarritoProviderProps) {
     setPagoModalAbierto(false);
   }
 
-  async function vaciarCarrito() {
+  async function vaciarCarrito(opts?: VaciarCarritoOptions) {
+    const conservarDireccion = opts?.conservarDireccion ?? false;
+
     if (tieneSesion()) {
+      invalidarCargasCarritoPendientes();
       try {
-        await eliminarCarritoCompleto();
-      } catch (err) {
-        console.warn("[Trego] Error al vaciar carrito en servidor", err);
+        const dto = await vaciarItemsCarrito();
+        if (dto) {
+          aplicarCarritoDto(dto);
+        } else {
+          setItems([]);
+          setCarritoDto(null);
+          setRestaurante(null);
+        }
+        if (!conservarDireccion) {
+          setDireccionSeleccionada(null);
+        }
+        return;
+      } catch (err: any) {
+        const msg = mensajeAmigableApi(
+          err.message ?? "No se pudo vaciar el carrito",
+        );
+        setMensajeCarrito(msg);
+        throw err;
       }
     }
+
     setItems([]);
     setCarritoDto(null);
     setRestaurante(null);
-    setDireccionSeleccionada(null);
+    if (!conservarDireccion) {
+      setDireccionSeleccionada(null);
+    }
   }
 
   async function asegurarRestaurante(

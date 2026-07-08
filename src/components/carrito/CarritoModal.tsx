@@ -272,6 +272,8 @@ export default function CarritoModal(): React.JSX.Element {
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
   const [editandoNombre, setEditandoNombre] = useState<string>("");
   const [comentarioTmp, setComentarioTmp] = useState<string>("");
+  const [confirmandoVaciar, setConfirmandoVaciar] = useState(false);
+  const [vaciando, setVaciando] = useState(false);
 
   const carritoVacio = items.length === 0;
 
@@ -317,6 +319,7 @@ export default function CarritoModal(): React.JSX.Element {
 
   function cerrar(): void {
     setMensajeCarrito(null);
+    setConfirmandoVaciar(false);
     cancelarEdicion();
     cerrarCarrito();
   }
@@ -364,6 +367,20 @@ export default function CarritoModal(): React.JSX.Element {
     if (x <= 0) cancelarEdicion();
   }
 
+  async function confirmarVaciarCarrito(): Promise<void> {
+    setVaciando(true);
+    try {
+      await vaciarCarrito({ conservarDireccion: true });
+      cancelarEdicion();
+      setConfirmandoVaciar(false);
+      setMensajeCarrito("Carrito vaciado");
+    } catch {
+      // El contexto ya setea mensajeCarrito con el error
+    } finally {
+      setVaciando(false);
+    }
+  }
+
   return (
     <ModalBase
       abierto={carritoAbierto}
@@ -376,14 +393,52 @@ export default function CarritoModal(): React.JSX.Element {
       <div className="flex min-h-0 flex-col overflow-hidden p-3 sm:p-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-[18px] font-extrabold text-gray-900">Carrito</h2>
-          <button
-            type="button"
-            onClick={cerrar}
-            className="shrink-0 rounded-full bg-gray-100 px-3 py-1.5 text-[12px] font-bold text-gray-500 transition-colors hover:bg-gray-200"
-          >
-            Cerrar
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            {!carritoVacio && !cargandoCarrito && (
+              <button
+                type="button"
+                onClick={() => setConfirmandoVaciar(true)}
+                disabled={vaciando || confirmandoVaciar}
+                className="rounded-full border border-red-100 bg-red-50 px-3 py-1.5 text-[12px] font-bold text-red-500 transition-colors hover:bg-red-100 disabled:opacity-50"
+              >
+                Vaciar carrito
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={cerrar}
+              className="rounded-full bg-gray-100 px-3 py-1.5 text-[12px] font-bold text-gray-500 transition-colors hover:bg-gray-200"
+            >
+              Cerrar
+            </button>
+          </div>
         </div>
+
+        {confirmandoVaciar && (
+          <div className="mt-2 flex flex-col gap-2 rounded-2xl border border-red-100 bg-red-50 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[12px] font-bold text-red-700">
+              ¿Vaciar todos los productos del carrito?
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmandoVaciar(false)}
+                disabled={vaciando}
+                className="flex-1 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[12px] font-extrabold text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 sm:flex-none"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={confirmarVaciarCarrito}
+                disabled={vaciando}
+                className="flex-1 rounded-full bg-red-500 px-3 py-1.5 text-[12px] font-extrabold text-white transition-colors hover:bg-red-600 disabled:opacity-50 sm:flex-none"
+              >
+                {vaciando ? "Vaciando..." : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        )}
 
         {mensajeCarrito && (
           <div
