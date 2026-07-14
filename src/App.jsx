@@ -1,4 +1,5 @@
 import { BrowserRouter, Outlet, Route, Routes } from "react-router";
+import Inicio from "./pages/Inicio.js";
 import SeleccionarRol from "./pages/SeleccionarRol.js";
 import LoginCliente from "./pages/logins/LoginCliente.js";
 import LoginAdmin from "./pages/logins/LoginAdmin.js";
@@ -45,7 +46,8 @@ export default function AppRouter() {
     <BrowserRouter>
       <Routes>
         {/* --- RUTAS PÚBLICAS O SIN LAYOUT --- */}
-        <Route path="/" element={<SeleccionarRol />} />
+        <Route path="/" element={<Inicio />} />
+        <Route path="/roles" element={<SeleccionarRol />} />
         <Route path="/login/cliente" element={<LoginCliente />} />
         <Route path="/login/Restaurante" element={<LoginRestaurante />} />
         <Route

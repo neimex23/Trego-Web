@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { TextInput } from "../../../components/TextInput.js";
 import type { ImageField } from "../../../components/typos/ImageField.js";
 import ImageUploadField from "../../../components/ImagenUploadField.js";
@@ -9,6 +10,7 @@ import type { DireccionGeoapify } from "../../../data/DireccionGeoapify.js";
 import type { DTODireccion } from "../../../data/DTODireccion.js";
 import {
   enviarSolicitudAltaRestaurante,
+  obtenerActual,
   obtenerFirmaCloudinary,
 } from "../../../api/apiRestaurante.js";
 
@@ -24,7 +26,7 @@ interface FormData {
   esquina: string;
 }
 
-type SubmitStep = "FORM" | "LOADING" | "SUCCESS";
+type SubmitStep = "CHECKING" | "FORM" | "LOADING" | "SUCCESS" | "EN_PROCESO";
 
 // ── Validators ─────────────────────────────────────────────────────────────
 function validateRUT(rut: string): boolean {
@@ -54,7 +56,47 @@ function validarImagen(
 }
 
 export default function SolicitarAltaRestaurante() {
-  const [step, setStep] = useState<SubmitStep>("FORM");
+  const navigate = useNavigate();
+  const [step, setStep] = useState<SubmitStep>("CHECKING");
+
+  // Al montar, verificamos el estado real del restaurante. Si ya envió una
+  // solicitud de alta (tiene datos cargados) pero todavía no está habilitado,
+  // mostramos la pantalla "en proceso" en vez del formulario vacío.
+  useEffect(() => {
+    let cancelado = false;
+
+    obtenerActual()
+      .then((resto) => {
+        if (cancelado) return;
+
+        if (resto.habilitado) {
+          // Ya fue aprobado: lo mandamos a trabajar.
+          localStorage.setItem("restauranteHabilitado", "true");
+          navigate("/restaurantes/ListarPedidosSinConfirmar", {
+            replace: true,
+          });
+          return;
+        }
+
+        // Consideramos que la solicitud ya fue enviada si el restaurante tiene
+        // datos que sólo se cargan en el alta (RUT / descripción / dirección).
+        const solicitudEnviada = Boolean(
+          resto.rut?.trim() ||
+            resto.descripcion?.trim() ||
+            resto.direccion?.calle?.trim(),
+        );
+
+        setStep(solicitudEnviada ? "EN_PROCESO" : "FORM");
+      })
+      .catch(() => {
+        // Ante un error de red no bloqueamos el alta: mostramos el formulario.
+        if (!cancelado) setStep("FORM");
+      });
+
+    return () => {
+      cancelado = true;
+    };
+  }, [navigate]);
 
   const [form, setForm] = useState<FormData>({
     nombre: "",
@@ -291,6 +333,43 @@ export default function SolicitarAltaRestaurante() {
           <h1 className="text-3xl font-bold text-trego-restaurante text-center mb-4 tracking-tight">
             Alta Restaurante
           </h1>
+
+          {/* ── CHECKING (verificando estado) ── */}
+          {step === "CHECKING" && (
+            <div className="flex flex-col items-center gap-4 py-16">
+              <div className="w-12 h-12 rounded-full border-4 border-green-200 border-t-trego-restaurante animate-spin" />
+              <p className="text-sm text-gray-400">Cargando...</p>
+            </div>
+          )}
+
+          {/* ── EN_PROCESO (solicitud ya enviada) ── */}
+          {step === "EN_PROCESO" && (
+            <div className="flex flex-col items-center gap-6 py-16">
+              <div className="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center">
+                <svg
+                  className="w-10 h-10 text-amber-500"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800">
+                Solicitud en proceso
+              </h2>
+              <p className="text-gray-500 text-center max-w-sm">
+                Ya recibimos tu solicitud de alta y está en revisión. Te
+                avisaremos por correo cuando el proceso de verificación haya
+                finalizado.
+              </p>
+            </div>
+          )}
 
           {/* ── SUCCESS ── */}
           {step === "SUCCESS" && (
