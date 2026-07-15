@@ -1,5 +1,6 @@
 import { BrowserRouter, Outlet, Route, Routes } from "react-router";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import Inicio from "./pages/Inicio.js";
 import SeleccionarRol from "./pages/SeleccionarRol.js";
 import LoginCliente from "./pages/logins/LoginCliente.js";
@@ -46,6 +47,7 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <Analytics />
+      <SpeedInsights />
       <Routes>
         {/* --- RUTAS PÚBLICAS O SIN LAYOUT --- */}
         <Route path="/" element={<Inicio />} />
