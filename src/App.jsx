@@ -1,4 +1,5 @@
 import { BrowserRouter, Outlet, Route, Routes } from "react-router";
+import { Analytics } from "@vercel/analytics/react";
 import Inicio from "./pages/Inicio.js";
 import SeleccionarRol from "./pages/SeleccionarRol.js";
 import LoginCliente from "./pages/logins/LoginCliente.js";
@@ -44,6 +45,7 @@ import ListarOfertas from "./pages/restaurantes/screens/ListarOfertas.js";
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      <Analytics />
       <Routes>
         {/* --- RUTAS PÚBLICAS O SIN LAYOUT --- */}
         <Route path="/" element={<Inicio />} />
