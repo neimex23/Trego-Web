@@ -5,6 +5,9 @@ export const CATEGORIAS_MENU = [
   { id: 'Postre', label: 'Postres' },
   { id: 'Ensalada', label: 'Ensaladas' },
   { id: 'Principal', label: 'Plato Principal' },
+  { id: 'Entrada', label: 'Entradas' },
+  { id: 'Guarnicion', label: 'Guarniciones' },
+  { id: 'Otros', label: 'Otras' },
 ]
 
 export const ORDEN_PRECIO = {

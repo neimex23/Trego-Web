@@ -5,7 +5,7 @@ export default function SectionRow({ titulo, children, accion }) {
         <h2 className="text-base font-bold text-gray-900 sm:text-[17px]">{titulo}</h2>
         {accion}
       </header>
-      <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-1 pb-2 [scrollbar-gutter:stable]">
+      <div className="-mx-1 flex snap-x snap-mandatory items-start gap-3 overflow-x-auto overflow-y-hidden px-1 pb-2 [scrollbar-gutter:stable]">
         {children}
       </div>
     </section>

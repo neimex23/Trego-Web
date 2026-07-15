@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import FiltrosRestaurantes from "../componentes/FiltrosResto.js";
 import { CardReclamo, type Reclamo } from "../componentes/CardReclamo.js";
 import type { NotificationState } from "../types/NotificationState.js";
 import { resolverReclamo } from "../../../api/reclamosApi.js";
-import { useReclamos } from "../../../hooks/useReclamos.js";
 import type {
   DTOReclamo,
   ResolverReclamoPayload,
@@ -15,7 +14,9 @@ import {
   RESTAURANTE_PAGE_CLASS,
   RestaurantePageHeader,
 } from "../componentes/RestaurantePageShell.js";
+import { usePedidosContext } from "../../../context/PedidosRestauranteContext.js";
 
+// Función pura externa 
 function mapDtoACard(dto: DTOReclamo): Reclamo {
   const estado =
     dto.estado === EnumEstadoReclamo.Resuelto
@@ -38,7 +39,7 @@ function mapDtoACard(dto: DTOReclamo): Reclamo {
     resolucion:
       dto.estado === EnumEstadoReclamo.Resuelto
         ? "Reintegro procesado"
-        : dto.motivoRechazo ?? "",
+        : (dto.motivoRechazo ?? ""),
     totalPedido:
       dto.totalPedido != null && Number.isFinite(Number(dto.totalPedido))
         ? Number(dto.totalPedido)
@@ -65,6 +66,8 @@ export default function ListarReclamos() {
     type: "success",
   });
 
+  const { pedidosReclamados } = usePedidosContext();
+
   const {
     reclamos,
     loading,
@@ -83,39 +86,54 @@ export default function ListarReclamos() {
     limpiarFiltros,
     estadosDisponibles,
     recargar,
-  } = useReclamos();
+  } = pedidosReclamados;
 
-  const showNotification = (message: string, type: "success" | "error") => {
+  // Notificación reactiva 
+  const showNotification = useCallback((message: string, type: "success" | "error") => {
     setNotification({ show: true, message, type });
-    setTimeout(
+    const timer = setTimeout(
       () => setNotification({ show: false, message: "", type: "success" }),
       4000,
     );
-  };
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (error) showNotification(error, "error");
-  }, [error]);
+  }, [error, showNotification]);
 
-  const handleResolver = async (
+  const reclamosMapped = useMemo(() => {
+    return reclamos.map(mapDtoACard);
+  }, [reclamos]);
+
+  const handleResolver = useCallback(async (
     idReclamo: number,
     payload: ResolverReclamoPayload,
   ) => {
-    await resolverReclamo(idReclamo, payload);
-    showNotification(
-      payload.accion
-        ? "Reclamo aceptado. Se notificó al cliente y se procesó el reintegro."
-        : "Reclamo rechazado. Se notificó al cliente.",
-      "success",
-    );
-    await recargar();
-  };
+    try {
+      await resolverReclamo(idReclamo, payload);
+      showNotification(
+        payload.accion
+          ? "Reclamo aceptado. Se notificó al cliente y se procesó el reintegro."
+          : "Reclamo rechazado. Se notificó al cliente.",
+        "success",
+      );
+      await recargar();
+    } catch (err) {
+      const mensaje = err instanceof Error ? err.message : "No se pudo resolver el reclamo.";
+      showNotification(mensaje, "error");
+    }
+  }, [recargar, showNotification]);
+
+  const handleLimpiarFiltros = useCallback(() => {
+    limpiarFiltros();
+  }, [limpiarFiltros]);
 
   return (
     <div className={RESTAURANTE_PAGE_CLASS}>
       {notification.show && (
         <div
-          className={`mb-4 p-4 rounded-xl flex items-center shadow-sm ${
+          className={`mb-4 p-4 rounded-xl flex items-center shadow-sm animate-fade-in ${
             notification.type === "success"
               ? "bg-green-50 text-green-800 border border-green-200"
               : "bg-red-50 text-red-800 border border-red-200"
@@ -136,9 +154,9 @@ export default function ListarReclamos() {
         recargando={loading}
       />
 
-      <div className="max-w-5xl mx-auto mb-6 sm:mb-8">
+      <div className="max-w-5xl mx-auto mb-6 sm:mb-8 relative">
         <FiltrosRestaurantes<EnumEstadoReclamo>
-          labelBuscador="Buscar por nombre o ID de pedido"
+          labelBuscador="Buscar por nombre o ID pedido"
           nombreID={searchTerm}
           setNombreID={setSearchTerm}
           desplegableTipo="Estado del reclamo"
@@ -149,12 +167,13 @@ export default function ListarReclamos() {
           orden={orden}
           setOrden={setOrden}
           hayFiltros={hayFiltros}
-          limpiarFiltros={limpiarFiltros}
+          limpiarFiltros={handleLimpiarFiltros}
           porFecha
           fechaDesde={fechaDesde}
           fechaHasta={fechaHasta}
           onChangeFechaDesde={setFechaDesde}
           onChangeFechaHasta={setFechaHasta}
+          wBox="w-60!"
         />
       </div>
 
@@ -166,8 +185,8 @@ export default function ListarReclamos() {
               Cargando reclamos...
             </p>
           </div>
-        ) : reclamos.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
+        ) : reclamosMapped.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 animate-fade-in">
             <p className="text-gray-500 font-medium text-lg">
               No hay reclamos para mostrar.
             </p>
@@ -178,10 +197,10 @@ export default function ListarReclamos() {
             </p>
           </div>
         ) : (
-          reclamos.map((dto) => (
+          reclamosMapped.map((reclamo) => (
             <CardReclamo
-              key={dto.idReclamo}
-              reclamo={mapDtoACard(dto)}
+              key={reclamo.idReclamo}
+              reclamo={reclamo}
               onResolver={handleResolver}
             />
           ))

@@ -25,6 +25,7 @@ import CrearAdministradorPage from "./pages/admin/screens/CrearAdministradorPage
 import AdministradorLayaut from "./pages/admin/AdministradorLayaut.js";
 import AltaSubCategoriaPage from "./pages/admin/screens/AltaSubCategoriaPage.js";
 import RestauranteMenuPage from "./pages/cliente/screens/RestauranteMenuPage.jsx";
+import SubCategoriaPlatosPage from "./pages/cliente/screens/SubCategoriaPlatosPage.jsx";
 import HomePage from "./pages/cliente/screens/HomePage.jsx";
 import HistorialPage from "./pages/cliente/screens/HistorialPage.jsx";
 import ClienteLayaut from "./pages/cliente/ClienteLayaut.js";
@@ -42,6 +43,7 @@ import EstadisticasPage from "./pages/restaurantes/screens/EstadisticasPage.js";
 import ReputacionPage from "./pages/restaurantes/screens/ReputacionPage.tsx";
 import { CarritoProvider } from "./context/CarritoContext";
 import ListarOfertas from "./pages/restaurantes/screens/ListarOfertas.js";
+import { PedidosProvider } from "./context/PedidosRestauranteContext.js";
 
 export default function AppRouter() {
   return (
@@ -69,14 +71,26 @@ export default function AppRouter() {
         />
 
         {/* --- RUTAS DE RETORNO MERCADO PAGO --- */}
-        <Route element={<CarritoProvider><Outlet /></CarritoProvider>}>
+        <Route
+          element={
+            <CarritoProvider>
+              <Outlet />
+            </CarritoProvider>
+          }
+        >
           <Route path="/success" element={<PagoExito />} />
           <Route path="/failure" element={<PagoError />} />
           <Route path="/pending" element={<PagoPendiente />} />
         </Route>
 
         {/* --- RUTAS RESTAURANTE --- */}
-        <Route element={<RestauranteLayout />}>
+        <Route
+          element={
+            <PedidosProvider>
+              <RestauranteLayout />
+            </PedidosProvider>
+          }
+        >
           <Route
             path="/restaurantes/solicitarAlta"
             element={<SolicitarAltaRestaurante />}
@@ -144,11 +158,11 @@ export default function AppRouter() {
             path="/restaurantes/estadisticas/monto"
             element={<EstadisticasPage vista="monto" />}
           />
+          <Route path="/restaurantes/reputacion" element={<ReputacionPage />} />
           <Route
-            path="/restaurantes/reputacion"
-            element={<ReputacionPage />}
+            path="/restaurantes/listar-ofertas"
+            element={<ListarOfertas />}
           />
-          <Route path="/restaurantes/listar-ofertas" element={<ListarOfertas />} />
         </Route>
 
         {/* --- RUTAS ADMIN (LAYOUT CON SIDEBAR) --- */}
@@ -157,7 +171,10 @@ export default function AppRouter() {
             path="/admin/restaurantes"
             element={<GestionRestaurantesPage />}
           />
-          <Route path="/admin/subcategorias/nueva" element={<AltaSubCategoriaPage />} />
+          <Route
+            path="/admin/subcategorias/nueva"
+            element={<AltaSubCategoriaPage />}
+          />
           <Route
             path="/admin/restaurantes/todos"
             element={<ListarRestaurantesPage />}
@@ -191,6 +208,7 @@ export default function AppRouter() {
           }
         >
           <Route path="/restaurante/:id" element={<RestauranteMenuPage />} />
+          <Route path="/subcategoria/:id" element={<SubCategoriaPlatosPage />} />
           <Route path="/restaurantes" element={<HomePage />} />
           <Route path="/Historial" element={<HistorialPage />} />
           <Route path="/perfil/cliente" element={<PerfilCliente />} />

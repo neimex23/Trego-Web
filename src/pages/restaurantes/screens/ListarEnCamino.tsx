@@ -1,15 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import type { NotificationState } from "../types/NotificationState.js";
 import {
   actualizarEstadoPedido,
-  listarPedidos,
   reembolsarPedido,
 } from "../../../api/apiRestaurante.js";
 import { EnumEstadoPedido } from "../../../data/EnumEstadoPedido.js";
 import type { DTOPedido } from "../../../data/DTOPedido.js";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import CardPedidoAconfirmar from "../componentes/CardPedidoAconfirmar.js";
-import { usePedidos } from "../../../hooks/usePedidoRestaurante.js";
 import { useProductoRestaurante } from "../../../hooks/useProductoRestaurante.js";
 import { useFiltrosPedidos } from "../../../hooks/useFiltrosPedidos.js";
 import type { DTOProducto } from "../../../data/DTOProducto.js";
@@ -18,6 +16,7 @@ import {
   RESTAURANTE_PAGE_CLASS,
   RestaurantePageHeader,
 } from "../componentes/RestaurantePageShell.js";
+import { usePedidosContext } from "../../../context/PedidosRestauranteContext.js";
 
 export default function ListarEnCamino() {
   const [notification, setNotification] = useState<NotificationState>({
@@ -26,14 +25,16 @@ export default function ListarEnCamino() {
     type: "success",
   });
 
-  const { productos, loadingProductos, errorProductos, recargarProductos } =
-    useProductoRestaurante();
-
-  // Obtener pedidos con estado "Solicitado"
-  const { pedidos, loading, error, recargar, removerPedidoLocal } = usePedidos(
-    EnumEstadoPedido.EnCamino,
-    180,
+  const [productoSelect, setProductoSelect] = useState<DTOProducto | undefined>(
+    undefined,
   );
+
+  const { productos, errorProductos } = useProductoRestaurante();
+
+  const { pedidosEnCamino, refrescarListas } = usePedidosContext();
+
+  const { pedidos, loading, error, recargar, removerPedidoLocal } =
+    pedidosEnCamino;
 
   const {
     searchTerm,
@@ -47,68 +48,85 @@ export default function ListarEnCamino() {
     limpiarFiltros,
   } = useFiltrosPedidos(pedidos);
 
-  const [productoSelect, setProductoSelect] = useState<DTOProducto>();
+  // Notificaciones seguras con useCallback
+  const showNotification = useCallback(
+    (message: string, type: "success" | "error") => {
+      setNotification({ show: true, message, type });
+      const timer = setTimeout(
+        () => setNotification({ show: false, message: "", type: "success" }),
+        4000,
+      );
+      return () => clearTimeout(timer);
+    },
+    [],
+  );
 
-  const showNotification = (message: string, type: "success" | "error") => {
-    setNotification({ show: true, message, type });
-    setTimeout(
-      () => setNotification({ show: false, message: "", type: "success" }),
-      4000,
-    );
-  };
-
-  const handleActualizarEstado = async (
-    pedido: DTOPedido,
-    nuevoEstado: EnumEstadoPedido,
-  ) => {
-    try {
-      if (nuevoEstado === EnumEstadoPedido.Cancelado) {
+  const handleActualizarEstado = useCallback(
+    async (pedido: DTOPedido, nuevoEstado: EnumEstadoPedido) => {
+      try {
         if (!pedido || !pedido.idPedido) {
           showNotification("Sin pedido seleccionado.", "error");
           return;
         }
-        await reembolsarPedido(pedido);
-        removerPedidoLocal(pedido.idPedido);
-        showNotification("Pedido cancelado por el restaurante.", "error");
-      } else {
-        if (!pedido || !pedido.idPedido) {
-          showNotification("Sin pedido seleccionado.", "error");
-          return;
+
+        if (nuevoEstado === EnumEstadoPedido.Cancelado) {
+          await reembolsarPedido(pedido);
+
+          removerPedidoLocal(pedido.idPedido);
+
+          await refrescarListas([EnumEstadoPedido.EnCamino]);
+
+          showNotification("Pedido cancelado por el restaurante.", "error");
+        } else {
+          await actualizarEstadoPedido({ pedido, estado: nuevoEstado });
+
+          removerPedidoLocal(pedido.idPedido);
+
+          await refrescarListas([EnumEstadoPedido.EnCamino]);
+
+          showNotification(
+            `Pedido #${pedido.idPedido} actualizado a ${nuevoEstado}.`,
+            "success",
+          );
         }
-        await actualizarEstadoPedido({ pedido, estado: nuevoEstado });
-        removerPedidoLocal(pedido.idPedido);
-        showNotification(
-          `Pedido #${pedido.idPedido} actualizado a ${nuevoEstado}.`,
-          "success",
-        );
+      } catch (err) {
+        const mensaje =
+          err instanceof Error ? err.message : "Error al actualizar el pedido.";
+        showNotification(mensaje, "error");
       }
-    } catch (error) {
-      const mensaje =
-        error instanceof Error
-          ? error.message
-          : "Error al actualizar el pedido.";
-      showNotification(mensaje, "error");
-    }
-  };
+    },
+    [removerPedidoLocal, refrescarListas, showNotification],
+  );
 
+  // Escucha de errores de llamadas
   useEffect(() => {
     if (errorProductos) showNotification(errorProductos, "error");
-  }, [errorProductos]);
+  }, [errorProductos, showNotification]);
 
   useEffect(() => {
     if (error) showNotification(error, "error");
-  }, [error]);
+  }, [error, showNotification]);
 
-  const handleLimpiarFiltros = () => {
+  // Limpiar filtros memoizado
+  const handleLimpiarFiltros = useCallback(() => {
     limpiarFiltros();
     setProductoSelect(undefined);
-  };
+  }, [limpiarFiltros]);
+
+  // Selección de filtros limpia
+  const handleFiltroProductoChange = useCallback(
+    (item: DTOProducto | undefined) => {
+      setProductoSelect(item);
+      setProductoSeleccionadoId(item?.idProducto);
+    },
+    [setProductoSeleccionadoId],
+  );
 
   return (
     <div className={RESTAURANTE_PAGE_CLASS}>
       {notification.show && (
         <div
-          className={`mb-4 p-4 rounded-xl flex items-center shadow-sm ${
+          className={`mb-4 p-4 rounded-xl flex items-center shadow-sm animate-fade-in ${
             notification.type === "success"
               ? "bg-green-50 text-green-800 border border-green-200"
               : "bg-red-50 text-red-800 border border-red-200"
@@ -136,15 +154,12 @@ export default function ListarEnCamino() {
           setNombreID={setSearchTerm}
           desplegableTipo="Producto Pedido"
           filtroSelecte={productoSelect}
-          onChangeFiltroSelect={(item) => {
-            (setProductoSelect(item),
-              setProductoSeleccionadoId(item?.idProducto));
-          }}
+          onChangeFiltroSelect={handleFiltroProductoChange}
           listaFiltros={productos}
           mapToItem={(i) => ({
-                id: i?.toString() ?? "",
-                label: i.nombre ?? "",
-              })}
+            id: i?.idProducto?.toString() ?? "",
+            label: i?.nombre ?? "",
+          })}
           orden={orden}
           setOrden={setOrden}
           hayFiltros={hayFiltros}
@@ -161,11 +176,13 @@ export default function ListarEnCamino() {
             </p>
           </div>
         ) : pedidosFiltrados.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
+          <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 animate-fade-in">
             <p className="text-gray-500 font-medium text-lg">
-              No hay pedidos pendientes de confirmación.
+              No hay pedidos en viaje en este momento.
             </p>
-            <p className="text-gray-400 text-sm mt-1">La cocina está al día.</p>
+            <p className="text-gray-400 text-sm mt-1">
+              Todos los repartos están al día.
+            </p>
           </div>
         ) : (
           pedidosFiltrados.map((pedido) => (

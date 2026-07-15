@@ -33,6 +33,7 @@ interface FiltroRestoProps<T> {
   setOfertasActivas?: (item: boolean) => void;
   fechaInicioLabel?: string;
   fechaFinLabel?: string;
+  wBox?: string;
 }
 
 export default function FiltrosRestaurantes<T>({
@@ -58,7 +59,8 @@ export default function FiltrosRestaurantes<T>({
   ofertasActivas,
   setOfertasActivas,
   fechaInicioLabel = "Desde",
-  fechaFinLabel = "Hasta"
+  fechaFinLabel = "Hasta",
+  wBox = "w-70!"
 }: FiltroRestoProps<T>) {
   const toggleOrden = () => setOrden(orden === "ASC" ? "DESC" : "ASC");
 
@@ -67,9 +69,9 @@ export default function FiltrosRestaurantes<T>({
       {/* Buscador */}
       <label
         htmlFor="filtro-busqueda"
-        className="flex flex-1 flex-col gap-1 min-w-70 max-w-120"
+        className={`flex flex-1 flex-col gap-1 min-${wBox} max-w-120`}
       >
-        <span className="text-sm font-medium text-center text-gray-700">
+        <span className="text-sm font-medium px-5 text-gray-700">
           {labelBuscador}
         </span>
         <TextInput
@@ -80,6 +82,7 @@ export default function FiltrosRestaurantes<T>({
           placeholder="Buscar nombre o ID"
           label={false}
           colorStyle="trego-restaurante"
+          className={wBox}
         />
       </label>
 
@@ -88,9 +91,9 @@ export default function FiltrosRestaurantes<T>({
         <>
           <label
             htmlFor="filtro-producto"
-            className="flex flex-1 flex-col gap-1 min-w-70 max-w-120"
+            className={`flex flex-1 flex-col gap-1 min-${wBox} max-w-120`}
           >
-            <span className="text-sm font-medium text-center text-gray-700">
+            <span className="text-sm font-medium px-5 text-gray-700">
               {desplegableTipo}
             </span>
             <TextBuscador<T>
@@ -99,6 +102,7 @@ export default function FiltrosRestaurantes<T>({
               onSelect={onChangeFiltroSelect}
               selected={filtroSelecte}
               placeholder="Buscar...."
+              classBox={wBox}
             />
           </label>
         </>
@@ -133,7 +137,7 @@ export default function FiltrosRestaurantes<T>({
       ) : undefined}
 
       {/* Botones de acción */}
-      <div className="flex w-full flex-wrap items-end justify-start sm:justify-end gap-4 sm:gap-6">
+      <div className="flex w-full items-end justify-start sm:justify-end gap-2 sm:gap-6">
         {/* Orden */}
         <div className="flex flex-col gap-1 min-w-11">
           <span className="text-sm font-medium text-gray-700">Orden</span>

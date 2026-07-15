@@ -20,7 +20,7 @@ function idsRestaurantesEnZona(restaurantesZona) {
   )
 }
 
-function enriquecerOfertaZona(item, restaurantesZona) {
+export function enriquecerOfertaZona(item, restaurantesZona) {
   const id = item.idRestaurante ?? item.producto?.idRestaurante
   const resto = (restaurantesZona ?? []).find(
     (r) => (r.idUsuario ?? r.idRestaurante) === id,
@@ -58,45 +58,68 @@ function mapearProductoZona(dto, restaurantesZona = [], { desdeApiOfertas = fals
   )
 }
 
+/**Listar ofertas segun la zona del usuario */
 async function listarOfertasDesdeApi(coords, restaurantesZona = []) {
+  if (!coords) return []
+
   const body = JSON.stringify({
     latitud: coords.latitud,
     longitud: coords.longitud,
   })
 
-  let response = await fetchConAuth(ENDPOINTS.LISTAR_PRODUCTOS_OFERTA, {
+  // Hacemos el POST directo que espera tu backend de Spring Boot
+  const response = await fetchConAuth(ENDPOINTS.LISTAR_PRODUCTOS_OFERTA, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json', 
+    },
     body,
   })
-
-  let filtrarPorZonaEnCliente = false
-
-  // Backend en ejecución puede exponer solo GET (POST devuelve 405).
-  if (response.status === 405) {
-    response = await fetchConAuth(ENDPOINTS.LISTAR_PRODUCTOS_OFERTA, {
-      method: 'GET',
-    })
-    filtrarPorZonaEnCliente = true
-  }
 
   if (response.status === 404) return []
   if (!response.ok) return null
 
   const data = await response.json()
   const lista = Array.isArray(data) ? data : []
-  const idsZona = idsRestaurantesEnZona(restaurantesZona)
 
-  let items = lista
+  const items = lista
     .map((dto) =>
       mapearProductoZona(dto, restaurantesZona, { desdeApiOfertas: true }),
     )
     .filter(Boolean)
 
-  if (filtrarPorZonaEnCliente && idsZona.size > 0) {
-    items = items.filter((item) => idsZona.has(item.idRestaurante))
+  return filtrarOfertasVisibles(items)
+}
+
+/** Productos habilitados de una subcategoría en la zona del cliente. */
+export async function listarProductosPorSubcategoriaEnZona(
+  coords,
+  idSubCategoria,
+  restaurantesZona = [],
+) {
+  if (!coords || idSubCategoria == null) return []
+
+  const url = `${ENDPOINTS.LISTAR_PRODUCTOS_SUBCATEGORIA}?idSubCategoria=${idSubCategoria}`
+  const response = await fetchConAuth(url, {
+    method: 'POST',
+    body: JSON.stringify({
+      latitud: coords.latitud,
+      longitud: coords.longitud,
+    }),
+  })
+
+  if (response.status === 404) return []
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '')
+    throw new Error(errorText || 'Error al listar platos de la subcategoría')
   }
 
-  return filtrarOfertasVisibles(items)
+  const data = await response.json()
+  const lista = Array.isArray(data) ? data : []
+
+  return lista
+    .map((dto) => mapearProductoZona(dto, restaurantesZona))
+    .filter(Boolean)
 }
 
 /** Productos con oferta activa en la zona del cliente. */

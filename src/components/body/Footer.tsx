@@ -26,7 +26,8 @@ function FooterColumn({ title, links }: FooterColumnProps) {
       <ul className="flex flex-col gap-2">
         {links.map((link) => {
           // Detectamos si es un enlace externo o un correo
-          const esExterno = link.href.startsWith("http") || link.href.startsWith("mailto:");
+          const esExterno =
+            link.href.startsWith("http") || link.href.startsWith("mailto:");
 
           return (
             <li key={link.label}>
@@ -60,10 +61,8 @@ export default function Footer() {
     <footer className="border-t border-gray-200 bg-gray-50">
       {/* Redujimos el max-w-6xl a max-w-5xl para acotar el espacio general */}
       <div className="mx-auto max-w-5xl px-6 pt-10 pb-4">
-        
         {/* Cambiamos Grid por Flexbox para controlar el espaciado exacto */}
         <div className="flex flex-col md:flex-row flex-wrap justify-center gap-12 md:gap-20 lg:gap-28 mb-8">
-          
           {/* Columna marca */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
@@ -87,15 +86,16 @@ export default function Footer() {
               Descargá la app
             </h4>
             <div className="flex flex-col gap-3 mt-1">
-              <a 
-                href="#" 
+              <a
+                href="https://github.com/Pino3001/Trego-android/releases/tag/v1.0.0"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center justify-center w-36 h-10 bg-black text-white rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
               >
                 Google Play
               </a>
             </div>
           </div>
-
         </div>
 
         {/* Sub-barra inferior (Solo Copyright centrado) */}
@@ -104,7 +104,6 @@ export default function Footer() {
             © {currentYear} Trego. Proyecto Final.
           </p>
         </div>
-
       </div>
     </footer>
   );

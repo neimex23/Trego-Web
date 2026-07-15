@@ -17,6 +17,7 @@ interface TextSearchProps<T> {
   label?: boolean;
   error?: string;
   className?: string;
+  classBox?: string;
 }
 
 const colorMap: Record<string, string> = {
@@ -39,6 +40,7 @@ export const TextBuscador = <T,>({
   error,
   className,
   id,
+  classBox
 }: TextSearchProps<T>) => {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -122,7 +124,7 @@ useEffect(() => {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div ref={wrapperRef} className="relative w-full">
+    <div ref={wrapperRef} className={`relative w-full ${classBox}`}>
       {/* ── Input ─────────────────────────────────────────────────────────── */}
       <div className="relative">
         <input
@@ -150,7 +152,7 @@ useEffect(() => {
             outline-none transition-all duration-200 cursor-text
             ${error ? "border-red-400" : "border-gray-400"}
             focus:border-${colorStyle} focus:ring-1 focus:ring-${colorStyle}
-            text-gray-700
+            text-gray-700 ${classBox}
           `}
         />
 

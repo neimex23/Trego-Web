@@ -71,6 +71,7 @@ export function usePedidos(estado: EnumEstadoPedido, intervaloSegundos = 15) {
     loading,
     error,
     recargar: () => fetchPedidos(false), // Recarga manual (con spinner)
+    recargarSilencioso: () => fetchPedidos(true),
     removerPedidoLocal,
   };
 }

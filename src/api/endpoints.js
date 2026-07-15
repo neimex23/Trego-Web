@@ -63,6 +63,7 @@ export const ENDPOINTS = {
   LISTAR_PEDIDOS: `/api/pedido/listarPedidos`,
   LISTAR_SUBCATEGORIAS: `/api/subcategorias/listar`,
   LISTAR_PRODUCTOS_OFERTA: '/api/productos/listarProductosOferta',
+  LISTAR_PRODUCTOS_SUBCATEGORIA: '/api/productos/listarProductosSubcategorias',
   CONFIRMAR_PEDIDO: `/api/pedido/confirmar`,
   ACTUALIZAR_ESTADO: `/api/pedido/estado`,
   CANCELAR_PEDIDO: `/api/pedido/reembolsar`,

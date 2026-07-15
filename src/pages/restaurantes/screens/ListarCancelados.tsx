@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import type { NotificationState } from "../types/NotificationState.js";
 import { EnumEstadoPedido } from "../../../data/EnumEstadoPedido.js";
 import { AlertCircle, CheckCircle } from "lucide-react";
@@ -20,10 +20,10 @@ export default function ListarCancelados() {
     type: "success",
   });
 
-  const { productos, loadingProductos, errorProductos, recargarProductos } =
-    useProductoRestaurante();
+  const [productoSelect, setProductoSelect] = useState<DTOProducto | undefined>(undefined);
 
-  // Obtener pedidos con estado "Solicitado"
+  const { productos, errorProductos } = useProductoRestaurante();
+
   const { pedidos, loading, error, recargar } = usePedidos(
     EnumEstadoPedido.Reembolsado,
     1000,
@@ -32,6 +32,8 @@ export default function ListarCancelados() {
   const {
     searchTerm,
     setSearchTerm,
+    productoSeleccionadoId,
+    setProductoSeleccionadoId,
     orden,
     setOrden,
     pedidosFiltrados,
@@ -43,31 +45,42 @@ export default function ListarCancelados() {
     setFechaHasta,
   } = useFiltrosPedidos(pedidos);
 
-  const showNotification = (message: string, type: "success" | "error") => {
+  // Notificación estable con useCallback
+  const showNotification = useCallback((message: string, type: "success" | "error") => {
     setNotification({ show: true, message, type });
-    setTimeout(
+    const timer = setTimeout(
       () => setNotification({ show: false, message: "", type: "success" }),
       4000,
     );
-  };
+    return () => clearTimeout(timer);
+  }, []);
 
+  // Manejo de errores de carga
   useEffect(() => {
     if (errorProductos) showNotification(errorProductos, "error");
-  }, [errorProductos]);
+  }, [errorProductos, showNotification]);
 
   useEffect(() => {
     if (error) showNotification(error, "error");
-  }, [error]);
+  }, [error, showNotification]);
 
-  const handleLimpiarFiltros = () => {
+  // Limpieza de filtros 
+  const handleLimpiarFiltros = useCallback(() => {
     limpiarFiltros();
-  };
+    setProductoSelect(undefined);
+  }, [limpiarFiltros]);
+
+  // Selección de filtro de producto 
+  const handleFiltroProductoChange = useCallback((item: DTOProducto | undefined) => {
+    setProductoSelect(item);
+    setProductoSeleccionadoId(item?.idProducto);
+  }, [setProductoSeleccionadoId]);
 
   return (
     <div className={RESTAURANTE_PAGE_CLASS}>
       {notification.show && (
         <div
-          className={`mb-4 p-4 rounded-xl flex items-center shadow-sm ${
+          className={`mb-4 p-4 rounded-xl flex items-center shadow-sm animate-fade-in ${
             notification.type === "success"
               ? "bg-green-50 text-green-800 border border-green-200"
               : "bg-red-50 text-red-800 border border-red-200"
@@ -94,6 +107,13 @@ export default function ListarCancelados() {
           nombreID={searchTerm}
           setNombreID={setSearchTerm}
           desplegableTipo="Producto Pedido"
+          filtroSelecte={productoSelect}
+          onChangeFiltroSelect={handleFiltroProductoChange}
+          listaFiltros={productos}
+          mapToItem={(i) => ({
+            id: i?.idProducto?.toString() ?? "",
+            label: i?.nombre ?? "",
+          })}
           orden={orden}
           setOrden={setOrden}
           hayFiltros={hayFiltros}
@@ -103,6 +123,7 @@ export default function ListarCancelados() {
           fechaHasta={fechaHasta}
           onChangeFechaDesde={setFechaDesde}
           onChangeFechaHasta={setFechaHasta}
+          wBox="w-60!"
         />
       </div>
 
@@ -115,11 +136,11 @@ export default function ListarCancelados() {
             </p>
           </div>
         ) : pedidosFiltrados.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
+          <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 animate-fade-in">
             <p className="text-gray-500 font-medium text-lg">
-              No hay pedidos pendientes de confirmación.
+              No se encontraron pedidos cancelados.
             </p>
-            <p className="text-gray-400 text-sm mt-1">La cocina está al día.</p>
+            <p className="text-gray-400 text-sm mt-1">El historial está limpio para los filtros aplicados.</p>
           </div>
         ) : (
           pedidosFiltrados.map((pedido) => (

@@ -35,9 +35,7 @@ async function enriquecerTotalesPedido(
           totalesPorPedido.set(pedido.idPedido, pedido.total);
         }
       }
-    } catch {
-      // Si falla el listado de pedidos, seguimos con los totales ya obtenidos.
-    }
+    } catch {}
   }
 
   return reclamos.map((reclamo) => ({
@@ -52,6 +50,7 @@ async function enriquecerTotalesPedido(
 
 export function useReclamos() {
   const [reclamos, setReclamos] = useState<DTOReclamo[]>([]);
+  const [totalPendientes, setTotalPendientes] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,17 +76,38 @@ export function useReclamos() {
     setError(null);
     try {
       const esId = /^\d+$/.test(debouncedSearch);
-      const data = await listarReclamos({
-        nombre: debouncedSearch && !esId ? debouncedSearch : undefined,
-        estado: estadoFiltro,
-        fechaDesde: fechaDesde || undefined,
-        fechaHasta: fechaHasta || undefined,
-      });
+      const params: Record<string, any> = {};
+      if (debouncedSearch && !esId) params.nombre = debouncedSearch;
+      if (estadoFiltro) params.estado = estadoFiltro;
+      if (fechaDesde) params.fechaDesde = fechaDesde;
+      if (fechaHasta) params.fechaHasta = fechaHasta;
+
+      const data = await listarReclamos(params);
       setReclamos(await enriquecerTotalesPedido(data));
+
+      const queryActiva =
+        !!estadoFiltro || !!fechaDesde || !!fechaHasta || !!debouncedSearch;
+
+      if (!queryActiva) {
+        const count = data.filter(
+          (r) => r.estado === EnumEstadoReclamo.Pendiente,
+        ).length;
+        setTotalPendientes(count);
+      } else {
+        try {
+          const dataGlobalPendientes = await listarReclamos({
+            estado: EnumEstadoReclamo.Pendiente,
+          });
+          setTotalPendientes(dataGlobalPendientes.length);
+        } catch {
+          const countLocal = data.filter(
+            (r) => r.estado === EnumEstadoReclamo.Pendiente,
+          ).length;
+          setTotalPendientes(countLocal);
+        }
+      }
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "Error al cargar los reclamos",
-      );
+      setError(e instanceof Error ? e.message : "Error al cargar los reclamos");
       setReclamos([]);
     } finally {
       setLoading(false);
@@ -116,10 +136,7 @@ export function useReclamos() {
   }, [reclamos, debouncedSearch, orden]);
 
   const hayFiltros =
-    !!searchTerm.trim() ||
-    !!estadoFiltro ||
-    !!fechaDesde ||
-    !!fechaHasta;
+    !!searchTerm.trim() || !!estadoFiltro || !!fechaDesde || !!fechaHasta;
 
   const limpiarFiltros = useCallback(() => {
     setSearchTerm("");
@@ -130,6 +147,7 @@ export function useReclamos() {
 
   return {
     reclamos: reclamosFiltrados,
+    totalPendientes,
     loading,
     error,
     recargar: cargar,

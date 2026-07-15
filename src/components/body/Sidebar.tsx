@@ -7,7 +7,7 @@ interface SidebarProps {
   secciones: SidebarSection[];
   tipoUser: "Restaurante" | "Administrador";
   mobileOpen?: boolean;
-  onCloseMobile?: () => void;
+  onCloseMobile: () => void;
 }
 
 function SidebarNav({
@@ -67,7 +67,7 @@ function SidebarNav({
                       className={`min-w-5 rounded-full px-1.5 py-0.5 text-center text-xs font-bold ${
                         item.disabled
                           ? "bg-white/20 text-white"
-                          : `bg-${colorClass} text-white`
+                          : `bg-trego-orange text-white`
                       }`}
                     >
                       {item.badge}
@@ -127,6 +127,7 @@ export default function Sidebar({
                 secciones={secciones}
                 tipoUser={tipoUser}
                 onNavigate={onCloseMobile}
+
               />
             </div>
           </aside>
