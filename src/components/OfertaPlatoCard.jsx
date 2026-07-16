@@ -22,8 +22,8 @@ export default function OfertaPlatoCard({
     : "w-[calc((100%-0.75rem)/2)] min-w-[136px] max-w-[172px] shrink-0 snap-start sm:w-[172px]";
 
   const imgClass = enGrid
-    ? "relative aspect-square shrink-0 bg-gray-50"
-    : "relative aspect-square shrink-0 bg-[#d4d4d9]";
+    ? "relative h-[160px] w-full shrink-0 overflow-hidden bg-gray-50"
+    : "relative h-[112px] w-full shrink-0 overflow-hidden bg-gray-50 sm:h-[136px]";
 
   const imagen =
     producto.oferta?.urlImagen ??

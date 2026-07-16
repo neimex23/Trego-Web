@@ -10,7 +10,9 @@ function SubCategoriaCard({ subcategoria, enGrid = false }) {
     ? "w-full max-w-[160px] mx-auto self-start"
     : "w-[112px] shrink-0 snap-start sm:w-[136px]";
 
-  const imgClass = "relative aspect-square shrink-0 bg-gray-50";
+    const imgClass = enGrid
+    ? "relative h-[160px] w-full shrink-0 overflow-hidden bg-gray-50"
+    : "relative h-[112px] w-full shrink-0 overflow-hidden bg-gray-50 sm:h-[136px]";
 
   const imagen = subcategoria.urlImagen ?? null;
   const iniciales = subcategoria.nombre?.slice(0, 2)?.toUpperCase() ?? "—";
