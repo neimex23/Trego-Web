@@ -251,7 +251,7 @@ export default function RestauranteMenuPage() {
 }
 function PageShell({ children }) {
   return (
-    <div className="flex min-h-screen flex-col bg-[#f0f0f0]">
+    <div className="flex min-h-screen flex-col">
       <div className="mx-auto w-full max-w-275 flex-1 px-4 py-3 sm:px-6 sm:py-4">
         {children}
       </div>
