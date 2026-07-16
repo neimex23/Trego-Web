@@ -20,7 +20,9 @@ export default function ListarEntregados() {
     type: "success",
   });
 
-  const [productoSelect, setProductoSelect] = useState<DTOProducto | undefined>(undefined);
+  const [productoSelect, setProductoSelect] = useState<DTOProducto | undefined>(
+    undefined,
+  );
 
   // Cargamos productos para alimentar el dropdown del filtro
   const { productos, errorProductos } = useProductoRestaurante();
@@ -34,7 +36,7 @@ export default function ListarEntregados() {
   const {
     searchTerm,
     setSearchTerm,
-    setProductoSeleccionadoId, 
+    setProductoSeleccionadoId,
     orden,
     setOrden,
     pedidosFiltrados,
@@ -47,14 +49,17 @@ export default function ListarEntregados() {
   } = useFiltrosPedidos(pedidos);
 
   // Notificación segura con useCallback
-  const showNotification = useCallback((message: string, type: "success" | "error") => {
-    setNotification({ show: true, message, type });
-    const timer = setTimeout(
-      () => setNotification({ show: false, message: "", type: "success" }),
-      4000,
-    );
-    return () => clearTimeout(timer);
-  }, []);
+  const showNotification = useCallback(
+    (message: string, type: "success" | "error") => {
+      setNotification({ show: true, message, type });
+      const timer = setTimeout(
+        () => setNotification({ show: false, message: "", type: "success" }),
+        4000,
+      );
+      return () => clearTimeout(timer);
+    },
+    [],
+  );
 
   // Manejo de errores de carga
   useEffect(() => {
@@ -71,11 +76,14 @@ export default function ListarEntregados() {
     setProductoSelect(undefined);
   }, [limpiarFiltros]);
 
-  // Manejo de selección de productos 
-  const handleFiltroProductoChange = useCallback((item: DTOProducto | undefined) => {
-    setProductoSelect(item);
-    setProductoSeleccionadoId(item?.idProducto);
-  }, [setProductoSeleccionadoId]);
+  // Manejo de selección de productos
+  const handleFiltroProductoChange = useCallback(
+    (item: DTOProducto | undefined) => {
+      setProductoSelect(item);
+      setProductoSeleccionadoId(item?.idProducto);
+    },
+    [setProductoSeleccionadoId],
+  );
 
   return (
     <div className={RESTAURANTE_PAGE_CLASS}>

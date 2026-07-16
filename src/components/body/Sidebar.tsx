@@ -127,7 +127,6 @@ export default function Sidebar({
                 secciones={secciones}
                 tipoUser={tipoUser}
                 onNavigate={onCloseMobile}
-
               />
             </div>
           </aside>

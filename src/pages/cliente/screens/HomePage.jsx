@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import FiltersModal from "../../../components/FiltersModal.jsx";
 import LocationPrompt from "../../../components/LocationPrompt.jsx";
 import EmptyState from "../../../components/EmptyState.jsx";
-import SectionRow from "../../../components/SectionRow.jsx";
 import RestaurantCard from "../../../components/RestaurantCard.jsx";
 import SubCategoriaCard from "../../../components/SubCategoriaCard.jsx";
 import OfertaPlatoCard from "../../../components/OfertaPlatoCard.jsx";
@@ -20,22 +19,29 @@ import { useDebounce } from "../../../hooks/useDebounce.ts";
 import { useSubCategorias } from "../../../hooks/useSubCategorias.js";
 import Footer from "../../../components/body/Footer.js";
 import { useNavigate } from "react-router";
+import CarruselHorizontal from "../../../components/cliente/CarruselHorizontal.jsx";
 
-function SeccionEncabezado({ titulo, subtitulo, acciones }) {
+function SeccionEncabezado({ titulo, subtitulo, acciones, paddingTexto }) {
   return (
     <header className="mb-3 flex flex-col gap-3 px-0.5 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        <h2 className="text-base font-bold text-gray-900 sm:text-[17px]">
+        <h2
+          className={`text-base font-bold text-gray-900 sm:text-[17px] ${paddingTexto}`}
+        >
           {titulo}
         </h2>
         {subtitulo && (
-          <p className="mt-0.5 text-xs text-gray-500 sm:text-[13px]">
+          <p
+            className={`mt-0.5 text-xs text-gray-500 sm:text-[13px] ${paddingTexto}`}
+          >
             {subtitulo}
           </p>
         )}
       </div>
       {acciones ? (
-        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
+        <div
+          className={`flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end ${paddingTexto}`}
+        >
           {acciones}
         </div>
       ) : null}
@@ -62,7 +68,7 @@ export default function HomePage() {
     setOrdenamiento,
     hayFiltrosActivos,
   } = useRestaurantes();
-  
+
   const { subcategorias } = useSubCategorias();
   const { filtrosAbiertos, cerrarFiltros } = useFiltros();
 
@@ -83,7 +89,6 @@ export default function HomePage() {
     !ubicacionCancelada &&
     !ubicacionPromptYaRespondido();
 
-  // --- ESTADOS DE CARGA CONTEXTUALES ---
   const esCargaInicialPagina =
     cargando && !modoBusqueda && restaurantes.length === 0;
   const esActualizacionSilenciosa =
@@ -100,18 +105,29 @@ export default function HomePage() {
   const longitud = geo.coords?.longitud;
 
   const latitudRedondeada = useMemo(() => {
-    return latitud !== undefined ? Math.round(latitud * 10000) / 10000 : undefined;
+    return latitud !== undefined
+      ? Math.round(latitud * 10000) / 10000
+      : undefined;
   }, [latitud]);
 
   const longitudRedondeada = useMemo(() => {
-    return longitud !== undefined ? Math.round(longitud * 10000) / 10000 : undefined;
+    return longitud !== undefined
+      ? Math.round(longitud * 10000) / 10000
+      : undefined;
   }, [longitud]);
 
   useEffect(() => {
-    if (!geo.tieneUbicacion || latitudRedondeada === undefined || longitudRedondeada === undefined)
+    if (
+      !geo.tieneUbicacion ||
+      latitudRedondeada === undefined ||
+      longitudRedondeada === undefined
+    )
       return;
 
-    const coordsSeguras = { latitud: latitudRedondeada, longitud: longitudRedondeada };
+    const coordsSeguras = {
+      latitud: latitudRedondeada,
+      longitud: longitudRedondeada,
+    };
     const termino = debouncedBusqueda.trim();
 
     if (termino) {
@@ -165,7 +181,6 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex-1 mx-auto w-full max-w-400 px-3 py-4 sm:px-6 sm:py-6">
-        {/* Notificaciones de actualización silenciosa en segundo plano */}
         {esActualizacionSilenciosa && (
           <div className="mb-4 flex items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50 py-2 text-xs font-medium text-blue-700 animate-pulse">
             <span className="relative flex h-2 w-2">
@@ -199,9 +214,13 @@ export default function HomePage() {
             <div className="rounded-full bg-orange-100 p-4 text-orange-600 mb-4">
               <MapPin className="h-8 w-8 animate-bounce" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900">Encuentra la mejor comida cerca de ti</h3>
+            <h3 className="text-lg font-bold text-gray-900">
+              Encuentra la mejor comida cerca de ti
+            </h3>
             <p className="mt-2 text-sm text-gray-500 max-w-sm">
-              Por favor activa tu ubicación para mostrarte los restaurantes locales, platos más demandados y promociones exclusivas en tu zona.
+              Por favor activa tu ubicación para mostrarte los restaurantes
+              locales, platos más demandados y promociones exclusivas en tu
+              zona.
             </p>
             <button
               onClick={handleActivarUbicacion}
@@ -280,6 +299,7 @@ export default function HomePage() {
                     <SeccionEncabezado
                       titulo="Mejores ofertas"
                       subtitulo="Platos en promoción en tu zona"
+                      paddingTexto="px-10"
                       acciones={
                         <OrdenamientoSelect
                           value={filtros.ordenamiento}
@@ -295,47 +315,49 @@ export default function HomePage() {
                         </p>
                       </div>
                     ) : (
-                      <>
-                        <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-1 pb-2 scrollbar-gutter-stable sm:hidden">
-                          {mejoresOfertas.map((oferta) => (
+                      <CarruselHorizontal>
+                        {mejoresOfertas.map((oferta) => (
+                          <div
+                            key={`${oferta.idRestaurante}-${oferta.producto?.idProducto}`}
+                            className="shrink-0 snap-start"
+                          >
                             <OfertaPlatoCard
-                              key={`${oferta.idRestaurante}-${oferta.producto?.idProducto}`}
                               oferta={oferta}
                               onSeleccionar={handleSeleccionarOferta}
                             />
-                          ))}
-                        </div>
-                        <div className="hidden grid-cols-3 gap-3 sm:grid lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-                          {mejoresOfertas.map((oferta) => (
-                            <OfertaPlatoCard
-                              key={`grid-${oferta.idRestaurante}-${oferta.producto?.idProducto}`}
-                              oferta={oferta}
-                              enGrid
-                              onSeleccionar={handleSeleccionarOferta}
-                            />
-                          ))}
-                        </div>
-                      </>
+                          </div>
+                        ))}
+                      </CarruselHorizontal>
                     )}
                   </section>
                 )}
 
-            {!modoBusqueda && subcategorias.length > 0 && (
-              <SectionRow titulo="Descubre los Mejores Platos">
-                {subcategorias.map((sub) => (
-                  <SubCategoriaCard
-                    key={`subcategoria-${sub.idSubCategoria}`}
-                    subcategoria={sub}
-                  />
-                ))}
-              </SectionRow>
-            )}
+                {/* --- SECCIÓN SUBCATEGORIAS --- */}
+                {!modoBusqueda && subcategorias.length > 0 && (
+                  <section className="mb-6 sm:mb-7">
+                    <SeccionEncabezado
+                      titulo="Descubre los Mejores Platos"
+                      paddingTexto="px-10"
+                    />
+                    <CarruselHorizontal>
+                      {subcategorias.map((sub) => (
+                        <div
+                          key={`subcategoria-${sub.idSubCategoria}`}
+                          className="shrink-0 snap-start"
+                        >
+                          <SubCategoriaCard subcategoria={sub} />
+                        </div>
+                      ))}
+                    </CarruselHorizontal>
+                  </section>
+                )}
 
                 {/* --- SECCIÓN LISTA GENERAL --- */}
                 {!modoBusqueda && (
                   <section>
                     <SeccionEncabezado
                       titulo="Lista de Restaurantes"
+                      paddingTexto="px-10"
                       acciones={
                         <OrdenamientoSelect
                           value={filtros.ordenamiento}
@@ -357,7 +379,7 @@ export default function HomePage() {
                         }
                       />
                     ) : (
-                      <div className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 xl:grid-cols-3">
+                      <div className="grid grid-cols-1 gap-3 px-10   min-[480px]:grid-cols-2 xl:grid-cols-3">
                         {listaPrincipal.map((r) => (
                           <RestaurantCard
                             key={r.idUsuario}

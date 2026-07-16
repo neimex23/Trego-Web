@@ -60,7 +60,7 @@ export default function FiltrosRestaurantes<T>({
   setOfertasActivas,
   fechaInicioLabel = "Desde",
   fechaFinLabel = "Hasta",
-  wBox = "w-70!"
+  wBox = "w-70!",
 }: FiltroRestoProps<T>) {
   const toggleOrden = () => setOrden(orden === "ASC" ? "DESC" : "ASC");
 
@@ -157,11 +157,7 @@ export default function FiltrosRestaurantes<T>({
 
         {setOfertasActivas ? (
           <div className="flex flex-col gap-1 min-w-11">
-            <span
-              className={`text-sm font-medium text-gray-700`}
-            >
-              Activos
-            </span>
+            <span className={`text-sm font-medium text-gray-700`}>Activos</span>
             <label
               className={`flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border transition-colors
                 ${

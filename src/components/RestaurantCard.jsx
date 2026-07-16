@@ -28,9 +28,7 @@ export default function RestaurantCard({
   } = restaurante;
 
   const platos =
-    productosCoincidentes ??
-    restaurante._productosCoincidentes ??
-    [];
+    productosCoincidentes ?? restaurante._productosCoincidentes ?? [];
 
   const zona = direccion?.nombre ?? "Pocitos";
   const horario = formatearHorario(
@@ -52,9 +50,7 @@ export default function RestaurantCard({
   if (mostrarCerrado) {
     badgeEstado = <BadgeAbierto abierto={false} texto="Cerrado" />;
   } else if (mostrarSinReparto) {
-    badgeEstado = (
-      <BadgeAbierto abierto={false} texto="Fuera de zona" />
-    );
+    badgeEstado = <BadgeAbierto abierto={false} texto="Fuera de zona" />;
   } else {
     badgeEstado = <BadgeAbierto abierto={abierto} />;
   }
