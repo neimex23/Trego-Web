@@ -14,6 +14,7 @@ const LINKS = {
   soporte: [
     { label: "Contacto", href: "mailto:tregoappsoporte@gmail.com" },
     { label: "¿Sos restaurante?", href: "/login/Restaurante" },
+    { label: "Licencia", href: "/licencia" },
   ],
 };
 
@@ -92,17 +93,24 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-36 h-10 bg-black text-white rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
               >
-                Google Play
+                Descargar APK
               </a>
             </div>
           </div>
         </div>
 
         {/* Sub-barra inferior (Solo Copyright centrado) */}
-        <div className="flex items-center justify-center border-t border-gray-200 pt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 border-t border-gray-200 pt-4">
           <p className="text-sm text-gray-500">
             © {currentYear} Trego. Proyecto Final.
           </p>
+          <span className="hidden sm:inline text-gray-300">·</span>
+          <Link
+            to="/licencia"
+            className="text-sm text-gray-500 hover:text-trego-orange transition-colors"
+          >
+            Licencia PolyForm Noncommercial 1.0.0
+          </Link>
         </div>
       </div>
     </footer>

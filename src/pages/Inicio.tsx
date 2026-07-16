@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Header from "../components/body/Header.js";
 import bolsaTrego from "../assets/bolsa-trego.svg";
 import tregoCliente from "../assets/tregoCliente.svg";
@@ -366,6 +366,12 @@ export default function Inicio() {
           <p className="text-xs text-gray-400">
             © {new Date().getFullYear()} Trego — Grupo 6 · Lo pedís, Trego
           </p>
+          <Link
+            to="/licencia"
+            className="text-xs text-gray-400 underline transition-colors hover:text-trego-orange"
+          >
+            Licencia
+          </Link>
         </div>
       </footer>
     </div>
